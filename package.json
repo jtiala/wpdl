@@ -1,0 +1,14 @@
+{
+  "name": "wpdl",
+  "version": "0.1.0-dev",
+  "description": "Scrape data from a WordPress instance.",
+  "author": "Joonas Tiala <joonas.tiala@gmail.com>",
+  "license": "MIT",
+  "main": "wpdl.js",
+  "type": "module",
+  "dependencies": {
+    "chalk": "^5.0.1",
+    "prettier": "^2.8.0",
+    "yargs": "^17.6.2"
+  }
+}
