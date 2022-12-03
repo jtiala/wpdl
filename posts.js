@@ -65,6 +65,11 @@ export async function scrapePosts(apiUrl, dataDir) {
       formatStringAsHtml(post.content.rendered)
     );
 
+    await writeFile(
+      `${postDir}/rendered-excerpt.html`,
+      formatStringAsHtml(post.excerpt.rendered)
+    );
+
     info(`Scraped post ${chalk.blue(postIdentifier)}`);
   }
 
