@@ -10,7 +10,18 @@ import {
 } from "./utils.js";
 
 function getPostMetadata(post) {
-  return { ...post, content: undefined };
+  const removeKeys = ["content", "excerpt", "_links"];
+  const removeStartingWith = ["jetpack_", "yoast_"];
+
+  return Object.keys(post)
+    .filter(
+      (key) =>
+        !(
+          removeKeys.includes(key) ||
+          removeStartingWith.some((removeKey) => key.startsWith(removeKey))
+        )
+    )
+    .reduce((filteredPost, key) => ({ ...filteredPost, [key]: post[key] }), {});
 }
 
 export async function scrapePosts(apiUrl, dataDir) {
