@@ -42,6 +42,23 @@ export function filterHtml(htmlString, { classFilters, idFilters }) {
   return dom.serialize();
 }
 
+export function filterJSON(json, jsonFilters) {
+  const removeKeys = jsonFilters.filter((filter) => !filter.endsWith("*"));
+  const removeStartingWith = jsonFilters
+    .filter((filter) => filter.endsWith("*"))
+    .map((filter) => filter.slice(0, -1));
+
+  return Object.keys(json)
+    .filter(
+      (key) =>
+        !(
+          removeKeys.includes(key) ||
+          removeStartingWith.some((removeKey) => key.startsWith(removeKey))
+        )
+    )
+    .reduce((filteredJson, key) => ({ ...filteredJson, [key]: json[key] }), {});
+}
+
 export async function cleanDir(dir, recreate = true, silent = false) {
   if (!silent) {
     info(`Cleaning ${chalk.blue(dir)} ...`);

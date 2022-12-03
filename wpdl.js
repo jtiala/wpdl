@@ -27,6 +27,11 @@ const argv = yargs(hideBin(process.argv))
     type: "string",
     description: "Filter out HTML elements with the given ID",
   })
+  .option("jsonFilter", {
+    type: "string",
+    description:
+      "Filter out properties from JSONs with the given key. If the key ends with *, it's considered as a wildcard.",
+  })
   .option("clean", {
     alias: "c",
     type: "boolean",
@@ -76,6 +81,12 @@ const idFilters = Array.isArray(argv.idFilter)
   ? [argv.idFilter]
   : [];
 
+const jsonFilters = Array.isArray(argv.jsonFilter)
+  ? argv.jsonFilter
+  : typeof argv.jsonFilter === "string"
+  ? [argv.jsonFilter]
+  : [];
+
 info("--- wpdl ---");
 info(`Starting to scrape ${chalk.blue(argv.url)}`);
 
@@ -83,4 +94,4 @@ if (argv.clean) {
   await cleanDir(dataDir);
 }
 
-await scrapePosts({ apiUrl, dataDir, classFilters, idFilters });
+await scrapePosts({ apiUrl, dataDir, classFilters, idFilters, jsonFilters });

@@ -4,25 +4,17 @@ import prettier from "prettier";
 import {
   cleanDir,
   filterHtml,
+  filterJSON,
   formatObjectAsJson,
   formatStringAsHtml,
   info,
   success,
 } from "./utils.js";
 
-function getPostMetadata(post) {
-  const removeKeys = ["content", "excerpt", "_links"];
-  const removeStartingWith = ["jetpack_", "yoast_"];
+function getPostMetadata(post, jsonFilters) {
+  const defaultRemoveKeys = ["content", "excerpt", "_links"];
 
-  return Object.keys(post)
-    .filter(
-      (key) =>
-        !(
-          removeKeys.includes(key) ||
-          removeStartingWith.some((removeKey) => key.startsWith(removeKey))
-        )
-    )
-    .reduce((filteredPost, key) => ({ ...filteredPost, [key]: post[key] }), {});
+  return filterJSON(post, [...defaultRemoveKeys, ...jsonFilters]);
 }
 
 export async function scrapePosts({
@@ -30,6 +22,7 @@ export async function scrapePosts({
   dataDir,
   classFilters,
   idFilters,
+  jsonFilters,
 }) {
   const postsApiUrl = `${apiUrl}/posts`;
   const postsDir = `${dataDir}/posts`;
@@ -63,7 +56,7 @@ export async function scrapePosts({
 
     await writeFile(
       `${postDir}/meta-data.json`,
-      formatObjectAsJson(getPostMetadata(post))
+      formatObjectAsJson(getPostMetadata(post, jsonFilters))
     );
 
     await writeFile(
