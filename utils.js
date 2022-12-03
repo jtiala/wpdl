@@ -23,14 +23,18 @@ export function formatStringAsHtml(string) {
   return prettier.format(string, { parser: "html" });
 }
 
-export async function cleanDir(dir, recreate = true) {
-  info(`Cleaning ${chalk.blue(dir)} ...`);
+export async function cleanDir(dir, recreate = true, silent = false) {
+  if (!silent) {
+    info(`Cleaning ${chalk.blue(dir)} ...`);
+  }
 
   await rm(dir, { recursive: true, force: true });
 
   if (recreate) {
-    await mkdir(dir);
+    await mkdir(dir, { recursive: true });
   }
 
-  success("Done.");
+  if (!silent) {
+    success("Done.");
+  }
 }

@@ -2,6 +2,7 @@ import chalk from "chalk";
 import { mkdir, writeFile } from "fs/promises";
 import prettier from "prettier";
 import {
+  cleanDir,
   formatObjectAsJson,
   formatStringAsHtml,
   info,
@@ -19,11 +20,9 @@ export async function scrapePosts(apiUrl, dataDir) {
   info("--- posts ---");
   info(`Scraping posts from ${chalk.blue(postsApiUrl)} ...`);
 
-  await mkdir(postsDir);
+  await mkdir(postsDir, { recursive: true });
 
   const posts = await (await fetch(postsApiUrl)).json();
-
-  await writeFile(`${postsDir}/all-posts.json`, formatObjectAsJson(posts));
 
   if (!Array.isArray(posts) || posts.length === 0) {
     info("No posts found.");
@@ -32,10 +31,13 @@ export async function scrapePosts(apiUrl, dataDir) {
     return;
   }
 
-  posts.map(async (post) => {
-    const postDir = `${postsDir}/${post.id}-${post.slug}`;
+  await writeFile(`${postsDir}/all-posts.json`, formatObjectAsJson(posts));
 
-    await mkdir(postDir);
+  for (const post of posts) {
+    const postIdentifier = `${post.id}-${post.slug}`;
+    const postDir = `${postsDir}/${postIdentifier}`;
+
+    await cleanDir(postDir, true, true);
 
     await writeFile(
       `${postDir}/full-data.json`,
@@ -51,7 +53,9 @@ export async function scrapePosts(apiUrl, dataDir) {
       `${postDir}/rendered-content.html`,
       formatStringAsHtml(post.content.rendered)
     );
-  });
+
+    info(`Scraped post ${chalk.blue(postIdentifier)}`);
+  }
 
   success("Done.");
 }
