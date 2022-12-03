@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "fs/promises";
 import prettier from "prettier";
 import {
   cleanDir,
+  filterHtml,
   formatObjectAsJson,
   formatStringAsHtml,
   info,
@@ -24,7 +25,12 @@ function getPostMetadata(post) {
     .reduce((filteredPost, key) => ({ ...filteredPost, [key]: post[key] }), {});
 }
 
-export async function scrapePosts(apiUrl, dataDir) {
+export async function scrapePosts({
+  apiUrl,
+  dataDir,
+  classFilters,
+  idFilters,
+}) {
   const postsApiUrl = `${apiUrl}/posts`;
   const postsDir = `${dataDir}/posts`;
 
@@ -62,12 +68,16 @@ export async function scrapePosts(apiUrl, dataDir) {
 
     await writeFile(
       `${postDir}/rendered-content.html`,
-      formatStringAsHtml(post.content.rendered)
+      formatStringAsHtml(
+        filterHtml(post.content.rendered, { classFilters, idFilters })
+      )
     );
 
     await writeFile(
       `${postDir}/rendered-excerpt.html`,
-      formatStringAsHtml(post.excerpt.rendered)
+      formatStringAsHtml(
+        filterHtml(post.excerpt.rendered, { classFilters, idFilters })
+      )
     );
 
     info(`Scraped post ${chalk.blue(postIdentifier)}`);

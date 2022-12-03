@@ -19,11 +19,19 @@ const argv = yargs(hideBin(process.argv))
     description: "Directory where scraped data is saved to",
     default: "./",
   })
+  .option("classFilter", {
+    type: "string",
+    description: "Filter out HTML elements with the given class",
+  })
+  .option("idFilter", {
+    type: "string",
+    description: "Filter out HTML elements with the given ID",
+  })
   .option("clean", {
     alias: "c",
     type: "boolean",
     description: "Clean target directory before scraping",
-    default: true,
+    default: false,
   })
   .demandOption(["url"])
   .alias("h", "help")
@@ -56,6 +64,18 @@ try {
 export const apiUrl = `${argv.url}/wp-json/wp/v2`;
 export const dataDir = `${targetDiv}/data`;
 
+const classFilters = Array.isArray(argv.classFilter)
+  ? argv.classFilter
+  : typeof argv.classFilter === "string"
+  ? [argv.classFilter]
+  : [];
+
+const idFilters = Array.isArray(argv.idFilter)
+  ? argv.idFilter
+  : typeof argv.idFilter === "string"
+  ? [argv.idFilter]
+  : [];
+
 info("--- wpdl ---");
 info(`Starting to scrape ${chalk.blue(argv.url)}`);
 
@@ -63,4 +83,4 @@ if (argv.clean) {
   await cleanDir(dataDir);
 }
 
-await scrapePosts(apiUrl, dataDir);
+await scrapePosts({ apiUrl, dataDir, classFilters, idFilters });
