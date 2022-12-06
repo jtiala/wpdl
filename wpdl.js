@@ -27,6 +27,10 @@ const argv = yargs(hideBin(process.argv))
     type: "string",
     description: "Filter out HTML elements with the given ID",
   })
+  .option("elementFilter", {
+    type: "string",
+    description: "Filter out the given HTML elements",
+  })
   .option("jsonFilter", {
     type: "string",
     description:
@@ -81,6 +85,12 @@ const idFilters = Array.isArray(argv.idFilter)
   ? [argv.idFilter]
   : [];
 
+const elementFilters = Array.isArray(argv.elementFilter)
+  ? argv.elementFilter
+  : typeof argv.elementFilter === "string"
+  ? [argv.elementFilter]
+  : [];
+
 const jsonFilters = Array.isArray(argv.jsonFilter)
   ? argv.jsonFilter
   : typeof argv.jsonFilter === "string"
@@ -94,4 +104,11 @@ if (argv.clean) {
   await cleanDir(dataDir);
 }
 
-await scrapePosts({ apiUrl, dataDir, classFilters, idFilters, jsonFilters });
+await scrapePosts({
+  apiUrl,
+  dataDir,
+  classFilters,
+  idFilters,
+  elementFilters,
+  jsonFilters,
+});

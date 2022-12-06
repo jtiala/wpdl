@@ -24,7 +24,10 @@ export function formatStringAsHtml(string) {
   return prettier.format(string, { parser: "html" });
 }
 
-export function filterHtml(htmlString, { classFilters, idFilters }) {
+export function filterHtml(
+  htmlString,
+  { classFilters, idFilters, elementFilters }
+) {
   const dom = new jsdom.JSDOM(htmlString);
 
   for (const filter of classFilters) {
@@ -39,7 +42,13 @@ export function filterHtml(htmlString, { classFilters, idFilters }) {
       .forEach((e) => e.remove());
   }
 
-  return dom.serialize();
+  for (const filter of elementFilters) {
+    dom.window.document
+      .querySelectorAll(`${filter}`)
+      .forEach((e) => e.remove());
+  }
+
+  return dom.window.document.body.innerHTML;
 }
 
 export function filterJSON(json, jsonFilters) {

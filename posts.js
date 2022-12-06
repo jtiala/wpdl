@@ -22,6 +22,7 @@ export async function scrapePosts({
   dataDir,
   classFilters,
   idFilters,
+  elementFilters,
   jsonFilters,
 }) {
   const postsApiUrl = `${apiUrl}/posts`;
@@ -62,14 +63,22 @@ export async function scrapePosts({
     await writeFile(
       `${postDir}/rendered-content.html`,
       formatStringAsHtml(
-        filterHtml(post.content.rendered, { classFilters, idFilters })
+        filterHtml(post.content.rendered, {
+          classFilters,
+          idFilters,
+          elementFilters,
+        })
       )
     );
 
     await writeFile(
       `${postDir}/rendered-excerpt.html`,
       formatStringAsHtml(
-        filterHtml(post.excerpt.rendered, { classFilters, idFilters })
+        filterHtml(post.excerpt.rendered, {
+          classFilters,
+          idFilters,
+          elementFilters,
+        })
       )
     );
 
