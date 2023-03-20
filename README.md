@@ -1,6 +1,6 @@
 # wpdl
 
-Scrape data from a WordPress instance.
+Scrape posts and pages from a WordPress instance and filter out stuff you don't want to see.
 
 ## Pre-requisites
 
@@ -14,13 +14,7 @@ npm i
 
 ## Usage
 
-To do a full scrape, run
-
-```bash
-./wpdl.js --url https://your-wp-instance.com
-```
-
-To see full usage, run
+To see usage, run
 
 ```bash
 ./wpdl.js --help

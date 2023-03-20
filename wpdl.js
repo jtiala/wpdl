@@ -3,6 +3,7 @@ import chalk from "chalk";
 import { access } from "fs/promises";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
+import { scrapePages } from "./pages.js";
 import { scrapePosts } from "./posts.js";
 import { cleanDir, error, info, isValidUrl } from "./utils.js";
 
@@ -12,6 +13,14 @@ const argv = yargs(hideBin(process.argv))
     alias: "u",
     type: "string",
     description: "Root URL of the WordPress instance to scrape",
+  })
+  .option("pages", {
+    type: "boolean",
+    description: "Scrape pages",
+  })
+  .option("posts", {
+    type: "boolean",
+    description: "Scrape posts",
   })
   .option("targetDir", {
     alias: "t",
@@ -39,13 +48,11 @@ const argv = yargs(hideBin(process.argv))
   .option("removeEmptyElements", {
     type: "boolean",
     description: "Remove HTML elements that doesn't have text content",
-    default: false,
   })
   .option("clean", {
     alias: "c",
     type: "boolean",
     description: "Clean target directory before scraping",
-    default: false,
   })
   .demandOption(["url"])
   .alias("h", "help")
@@ -109,12 +116,26 @@ if (argv.clean) {
   await cleanDir(dataDir);
 }
 
-await scrapePosts({
-  apiUrl,
-  dataDir,
-  classFilters,
-  idFilters,
-  elementFilters,
-  jsonFilters,
-  removeEmptyElements: argv.removeEmptyElements,
-});
+if (argv.pages) {
+  await scrapePages({
+    apiUrl,
+    dataDir,
+    classFilters,
+    idFilters,
+    elementFilters,
+    jsonFilters,
+    removeEmptyElements: argv.removeEmptyElements,
+  });
+}
+
+if (argv.posts) {
+  await scrapePosts({
+    apiUrl,
+    dataDir,
+    classFilters,
+    idFilters,
+    elementFilters,
+    jsonFilters,
+    removeEmptyElements: argv.removeEmptyElements,
+  });
+}

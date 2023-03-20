@@ -17,11 +17,21 @@ export const isValidUrl = (string) => {
 };
 
 export function formatObjectAsJson(object) {
-  return prettier.format(JSON.stringify(object), { parser: "json" });
+  const stringifiedObject = JSON.stringify(object);
+
+  try {
+    return prettier.format(stringifiedObject, { parser: "json" });
+  } catch {
+    return stringifiedObject;
+  }
 }
 
 export function formatStringAsHtml(string) {
-  return prettier.format(string, { parser: "html" });
+  try {
+    return prettier.format(string, { parser: "html" });
+  } catch {
+    return string;
+  }
 }
 
 export function filterHtml(
