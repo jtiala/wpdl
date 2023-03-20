@@ -28,6 +28,9 @@ export async function scrapePosts({
   const postsApiUrl = `${apiUrl}/posts`;
   const postsDir = `${dataDir}/posts`;
 
+  const filtersSet =
+    !!classFilters || !!elementFilters || !!jsonFilters || decodeHtmlEntities;
+
   info("--- posts ---");
   info(`Scraping posts from ${chalk.blue(postsApiUrl)} ...`);
 
@@ -59,6 +62,18 @@ export async function scrapePosts({
       `${postDir}/meta-data.json`,
       formatObjectAsJson(getPostMetadata(post, jsonFilters))
     );
+
+    if (filtersSet) {
+      await writeFile(
+        `${postDir}/rendered-content-unfiltered.html`,
+        formatStringAsHtml(post.content.rendered)
+      );
+
+      await writeFile(
+        `${postDir}/rendered-excerpt-unfiltered.html`,
+        formatStringAsHtml(post.excerpt.rendered)
+      );
+    }
 
     await writeFile(
       `${postDir}/rendered-content.html`,
