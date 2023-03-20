@@ -7,6 +7,7 @@ import {
   formatObjectAsJson,
   formatStringAsHtml,
   info,
+  paginatedScrape,
   success,
 } from "./utils.js";
 
@@ -24,80 +25,78 @@ export async function scrapePosts({
   elementFilters,
   jsonFilters,
   removeEmptyElements,
+  limitPages,
 }) {
+  info("--- posts ---");
+
   const postsApiUrl = `${apiUrl}/posts`;
   const postsDir = `${dataDir}/posts`;
+
+  await mkdir(postsDir, { recursive: true });
 
   const saveUnmodifiedHtml =
     !!classFilters || !!idFilters || !!elementFilters || removeEmptyElements;
 
-  info("--- posts ---");
-  info(`Scraping posts from ${chalk.blue(postsApiUrl)} ...`);
+  await paginatedScrape(postsApiUrl, limitPages, async (posts) => {
+    if (!Array.isArray(posts) || posts.length === 0) {
+      info("No posts found.");
+      cleanDir(postsDir, true);
 
-  await mkdir(postsDir, { recursive: true });
-
-  const posts = await (await fetch(postsApiUrl)).json();
-
-  if (!Array.isArray(posts) || posts.length === 0) {
-    info("No posts found.");
-    cleanDir(postsDir, true);
-
-    return;
-  }
-
-  await writeFile(`${postsDir}/all-posts.json`, formatObjectAsJson(posts));
-
-  for (const post of posts) {
-    const postIdentifier = `${post.id}-${post.slug}`;
-    const postDir = `${postsDir}/${postIdentifier}`;
-
-    await cleanDir(postDir, true, true);
-
-    await writeFile(`${postDir}/full-data.json`, formatObjectAsJson(post));
-
-    await writeFile(
-      `${postDir}/meta-data.json`,
-      formatObjectAsJson(getPostMetadata(post, jsonFilters))
-    );
-
-    await writeFile(
-      `${postDir}/rendered-content.html`,
-      formatStringAsHtml(
-        filterHtml(post.content.rendered, {
-          classFilters,
-          idFilters,
-          elementFilters,
-          removeEmptyElements,
-        })
-      )
-    );
-
-    await writeFile(
-      `${postDir}/rendered-excerpt.html`,
-      formatStringAsHtml(
-        filterHtml(post.excerpt.rendered, {
-          classFilters,
-          idFilters,
-          elementFilters,
-          removeEmptyElements,
-        })
-      )
-    );
-
-    if (saveUnmodifiedHtml) {
-      await writeFile(
-        `${postDir}/rendered-content-unmodified.html`,
-        formatStringAsHtml(post.content.rendered)
-      );
-
-      await writeFile(
-        `${postDir}/rendered-excerpt-unmodified.html`,
-        formatStringAsHtml(post.excerpt.rendered)
-      );
+      return;
     }
 
-    info(`Scraped post ${chalk.blue(postIdentifier)}`);
-  }
+    for (const post of posts) {
+      const postIdentifier = `${post.id}-${post.slug}`;
+      const postDir = `${postsDir}/${postIdentifier}`;
+
+      await cleanDir(postDir, true, true);
+
+      await writeFile(`${postDir}/full-data.json`, formatObjectAsJson(post));
+
+      await writeFile(
+        `${postDir}/meta-data.json`,
+        formatObjectAsJson(getPostMetadata(post, jsonFilters))
+      );
+
+      await writeFile(
+        `${postDir}/rendered-content.html`,
+        formatStringAsHtml(
+          filterHtml(post.content.rendered, {
+            classFilters,
+            idFilters,
+            elementFilters,
+            removeEmptyElements,
+          })
+        )
+      );
+
+      await writeFile(
+        `${postDir}/rendered-excerpt.html`,
+        formatStringAsHtml(
+          filterHtml(post.excerpt.rendered, {
+            classFilters,
+            idFilters,
+            elementFilters,
+            removeEmptyElements,
+          })
+        )
+      );
+
+      if (saveUnmodifiedHtml) {
+        await writeFile(
+          `${postDir}/rendered-content-unmodified.html`,
+          formatStringAsHtml(post.content.rendered)
+        );
+
+        await writeFile(
+          `${postDir}/rendered-excerpt-unmodified.html`,
+          formatStringAsHtml(post.excerpt.rendered)
+        );
+      }
+
+      info(`Scraped post ${chalk.blue(postIdentifier)}`);
+    }
+  });
 
   success("Done.");
 }

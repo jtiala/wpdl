@@ -49,6 +49,10 @@ const argv = yargs(hideBin(process.argv))
     type: "boolean",
     description: "Remove HTML elements that doesn't have text content",
   })
+  .option("limitPages", {
+    type: "number",
+    description: "Limit number of pages (per content type) to scrape",
+  })
   .option("clean", {
     alias: "c",
     type: "boolean",
@@ -125,6 +129,7 @@ if (argv.pages) {
     elementFilters,
     jsonFilters,
     removeEmptyElements: argv.removeEmptyElements,
+    limitPages: argv.limitPages,
   });
 }
 
@@ -137,5 +142,6 @@ if (argv.posts) {
     elementFilters,
     jsonFilters,
     removeEmptyElements: argv.removeEmptyElements,
+    limitPages: argv.limitPages,
   });
 }

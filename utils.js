@@ -16,6 +16,37 @@ export const isValidUrl = (string) => {
   }
 };
 
+export async function paginatedScrape(url, limitPages, handleData) {
+  let page = 0;
+  let pagesRemaining = true;
+  let nextPageUrl = url;
+  const nextPattern = /(?<=<)([\S]*)(?=>; rel="next")/i;
+
+  while (pagesRemaining) {
+    page = page + 1;
+    const response = await fetch(nextPageUrl);
+    const totalPagesHeader = response.headers.get("x-wp-totalpages");
+    const linkHeader = response.headers.get("link");
+
+    pagesRemaining =
+      page !== limitPages && linkHeader && linkHeader.includes(`rel=\"next\"`);
+
+    info(
+      `Scraping page ${chalk.green(page)} of ${chalk.green(
+        totalPagesHeader
+      )} from ${chalk.green(nextPageUrl)} ...`
+    );
+
+    if (pagesRemaining) {
+      nextPageUrl = linkHeader.match(nextPattern)[0];
+    }
+
+    const data = await response.json();
+
+    await handleData(data);
+  }
+}
+
 export function formatObjectAsJson(object) {
   const stringifiedObject = JSON.stringify(object);
 
