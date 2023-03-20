@@ -1,6 +1,5 @@
 import chalk from "chalk";
 import { mkdir, writeFile } from "fs/promises";
-import prettier from "prettier";
 import {
   cleanDir,
   filterHtml,
@@ -24,12 +23,13 @@ export async function scrapePosts({
   idFilters,
   elementFilters,
   jsonFilters,
+  removeEmptyElements,
 }) {
   const postsApiUrl = `${apiUrl}/posts`;
   const postsDir = `${dataDir}/posts`;
 
-  const filtersSet =
-    !!classFilters || !!elementFilters || !!jsonFilters || decodeHtmlEntities;
+  const saveUnmodifiedHtml =
+    !!classFilters || !!idFilters || !!elementFilters || removeEmptyElements;
 
   info("--- posts ---");
   info(`Scraping posts from ${chalk.blue(postsApiUrl)} ...`);
@@ -40,7 +40,7 @@ export async function scrapePosts({
 
   if (!Array.isArray(posts) || posts.length === 0) {
     info("No posts found.");
-    clean(postsDir, true);
+    cleanDir(postsDir, true);
 
     return;
   }
@@ -53,27 +53,12 @@ export async function scrapePosts({
 
     await cleanDir(postDir, true, true);
 
-    await writeFile(
-      `${postDir}/full-data.json`,
-      prettier.format(JSON.stringify(post), { parser: "json" })
-    );
+    await writeFile(`${postDir}/full-data.json`, formatObjectAsJson(post));
 
     await writeFile(
       `${postDir}/meta-data.json`,
       formatObjectAsJson(getPostMetadata(post, jsonFilters))
     );
-
-    if (filtersSet) {
-      await writeFile(
-        `${postDir}/rendered-content-unfiltered.html`,
-        formatStringAsHtml(post.content.rendered)
-      );
-
-      await writeFile(
-        `${postDir}/rendered-excerpt-unfiltered.html`,
-        formatStringAsHtml(post.excerpt.rendered)
-      );
-    }
 
     await writeFile(
       `${postDir}/rendered-content.html`,
@@ -82,6 +67,7 @@ export async function scrapePosts({
           classFilters,
           idFilters,
           elementFilters,
+          removeEmptyElements,
         })
       )
     );
@@ -93,9 +79,22 @@ export async function scrapePosts({
           classFilters,
           idFilters,
           elementFilters,
+          removeEmptyElements,
         })
       )
     );
+
+    if (saveUnmodifiedHtml) {
+      await writeFile(
+        `${postDir}/rendered-content-unmodified.html`,
+        formatStringAsHtml(post.content.rendered)
+      );
+
+      await writeFile(
+        `${postDir}/rendered-excerpt-unmodified.html`,
+        formatStringAsHtml(post.excerpt.rendered)
+      );
+    }
 
     info(`Scraped post ${chalk.blue(postIdentifier)}`);
   }

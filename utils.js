@@ -26,7 +26,7 @@ export function formatStringAsHtml(string) {
 
 export function filterHtml(
   htmlString,
-  { classFilters, idFilters, elementFilters }
+  { classFilters, idFilters, elementFilters, removeEmptyElements }
 ) {
   const dom = new jsdom.JSDOM(htmlString);
 
@@ -46,6 +46,14 @@ export function filterHtml(
     dom.window.document
       .querySelectorAll(`${filter}`)
       .forEach((e) => e.remove());
+  }
+
+  if (removeEmptyElements) {
+    for (const element of dom.window.document.querySelectorAll("body > *")) {
+      if (!element.textContent || element.textContent.trim().length === 0) {
+        element.remove();
+      }
+    }
   }
 
   return dom.window.document.body.innerHTML;

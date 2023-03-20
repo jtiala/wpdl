@@ -36,6 +36,11 @@ const argv = yargs(hideBin(process.argv))
     description:
       "Filter out properties from JSONs with the given key. If the key ends with *, it's considered as a wildcard.",
   })
+  .option("removeEmptyElements", {
+    type: "boolean",
+    description: "Remove HTML elements that doesn't have text content",
+    default: false,
+  })
   .option("clean", {
     alias: "c",
     type: "boolean",
@@ -70,8 +75,8 @@ try {
   process.exit(1);
 }
 
-export const apiUrl = `${argv.url}/wp-json/wp/v2`;
-export const dataDir = `${targetDiv}/data`;
+const apiUrl = `${argv.url}/wp-json/wp/v2`;
+const dataDir = `${targetDiv}/data`;
 
 const classFilters = Array.isArray(argv.classFilter)
   ? argv.classFilter
@@ -111,4 +116,5 @@ await scrapePosts({
   idFilters,
   elementFilters,
   jsonFilters,
+  removeEmptyElements: argv.removeEmptyElements,
 });
