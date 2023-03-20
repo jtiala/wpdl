@@ -7,9 +7,9 @@
   "main": "wpdl.js",
   "type": "module",
   "dependencies": {
-    "chalk": "^5.0.1",
-    "jsdom": "^20.0.3",
-    "prettier": "^2.8.0",
-    "yargs": "^17.6.2"
+    "chalk": "5.2.0",
+    "jsdom": "21.1.1",
+    "prettier": "2.8.5",
+    "yargs": "17.7.1"
   }
 }
