@@ -139,21 +139,49 @@ export function filterJSON(json, jsonFilters) {
     .reduce((filteredJson, key) => ({ ...filteredJson, [key]: json[key] }), {});
 }
 
-export async function downloadMediaItemImage(mediaItem, dir, overrideFileName) {
+export async function findImageMediaIds(htmlString) {
+  const dom = new jsdom.JSDOM(htmlString);
+  const mediaIds = [];
+
+  for (const element of dom.window.document.querySelectorAll("img")) {
+    if (element.hasAttribute("data-attachment-id")) {
+      mediaIds.push(parseInt(element.getAttribute("data-attachment-id")));
+    }
+  }
+
+  if (mediaIds.length > 0) {
+    info(`Found ${chalk.blue(mediaIds.length)} images`);
+  }
+
+  return mediaIds;
+}
+
+export async function downloadImages(mediaIds, apiUrl, dir) {
+  for (const mediaId of mediaIds) {
+    const mediaItemApiUrl = `${apiUrl}/media/${mediaId}`;
+    const response = await fetch(mediaItemApiUrl);
+    const mediaItem = await response.json();
+
+    if (mediaItem.media_type === "image") {
+      await downloadMediaItemImage(mediaItem, dir);
+    }
+  }
+}
+
+export async function downloadMediaItemImage(mediaItem, dir) {
   if (
     mediaItem.media_type === "image" &&
     mediaItem.media_details.sizes.full.source_url &&
     mediaItem.mime_type
   ) {
     const fullImageUrl = mediaItem.media_details.sizes.full.source_url;
-    const fileName = `${overrideFileName || mediaItem.slug}.${mime.extension(
-      mediaItem.mime_type
-    )}`;
+    const fileName = `${mediaItem.slug}.${mime.extension(mediaItem.mime_type)}`;
     const imageData = await fetch(fullImageUrl);
     const blob = await imageData.blob();
     const arrayBuffer = await blob.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     await writeFile(`${dir}/${fileName}`, buffer);
+    info(`Downloaded image ${chalk.blue(fileName)}`);
   }
 }
 

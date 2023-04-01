@@ -2,9 +2,10 @@ import chalk from "chalk";
 import { mkdir, writeFile } from "fs/promises";
 import {
   cleanDir,
-  downloadMediaItemImage,
+  downloadImages,
   filterHtml,
   filterJSON,
+  findImageMediaIds,
   formatObjectAsJson,
   formatStringAsHtml,
   info,
@@ -106,14 +107,15 @@ export async function scrapePages({
         );
       }
 
-      if (page.featured_media) {
-        const featuredMediaApiUrl = `${apiUrl}/media/${page.featured_media}`;
-        const featuredMediaResponse = await fetch(featuredMediaApiUrl);
-        const featuredMediaItem = await featuredMediaResponse.json();
+      const mediaIds = [
+        ...(page.featured_media ? [page.featured_media] : []),
+        ...(await findImageMediaIds(page.content.rendered)),
+      ];
 
-        if (featuredMediaItem.media_type === "image") {
-          await downloadMediaItemImage(featuredMediaItem, pageDir, "featured");
-        }
+      if (mediaIds) {
+        const imagesDir = `${pageDir}/images`;
+        await mkdir(imagesDir, { recursive: true });
+        await downloadImages(mediaIds, apiUrl, imagesDir);
       }
 
       info(`Scraped page ${chalk.blue(pageIdentifier)}`);
