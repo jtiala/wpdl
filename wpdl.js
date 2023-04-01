@@ -26,7 +26,7 @@ const argv = yargs(hideBin(process.argv))
     alias: "t",
     type: "string",
     description: "Directory where scraped data is saved to",
-    default: "./",
+    default: "./data",
   })
   .option("classFilter", {
     type: "string",
@@ -87,7 +87,6 @@ try {
 }
 
 const apiUrl = `${argv.url}/wp-json/wp/v2`;
-const dataDir = `${targetDiv}/data`;
 
 const classFilters = Array.isArray(argv.classFilter)
   ? argv.classFilter
@@ -117,13 +116,13 @@ info("--- wpdl ---");
 info(`Starting to scrape ${chalk.blue(argv.url)}`);
 
 if (argv.clean) {
-  await cleanDir(dataDir);
+  await cleanDir(targetDiv);
 }
 
 if (argv.pages) {
   await scrapePages({
     apiUrl,
-    dataDir,
+    dataDir: targetDiv,
     classFilters,
     idFilters,
     elementFilters,
@@ -136,7 +135,7 @@ if (argv.pages) {
 if (argv.posts) {
   await scrapePosts({
     apiUrl,
-    dataDir,
+    dataDir: targetDiv,
     classFilters,
     idFilters,
     elementFilters,
