@@ -3,6 +3,7 @@ import chalk from "chalk";
 import { access } from "fs/promises";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
+import { scrapeMedia } from "./media.js";
 import { scrapePages } from "./pages.js";
 import { scrapePosts } from "./posts.js";
 import { cleanDir, error, info, isValidUrl } from "./utils.js";
@@ -21,6 +22,10 @@ const argv = yargs(hideBin(process.argv))
   .option("posts", {
     type: "boolean",
     description: "Scrape posts",
+  })
+  .option("media", {
+    type: "boolean",
+    description: "Scrape media",
   })
   .option("targetDir", {
     alias: "t",
@@ -159,6 +164,15 @@ if (argv.posts) {
     removeAttributes,
     removeAllAttributes: argv.removeAllAttributes,
     removeEmptyElements: argv.removeEmptyElements,
+    limitPages: argv.limitPages,
+  });
+}
+
+if (argv.media) {
+  await scrapeMedia({
+    apiUrl,
+    dataDir: targetDiv,
+    jsonFilters,
     limitPages: argv.limitPages,
   });
 }
