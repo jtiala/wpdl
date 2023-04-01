@@ -24,6 +24,8 @@ export async function scrapePages({
   idFilters,
   elementFilters,
   jsonFilters,
+  removeAttributes,
+  removeAllAttributes,
   removeEmptyElements,
   limitPages,
 }) {
@@ -35,7 +37,12 @@ export async function scrapePages({
   await mkdir(pagesDir, { recursive: true });
 
   const saveUnmodifiedHtml =
-    !!classFilters || !!idFilters || !!elementFilters || removeEmptyElements;
+    !!classFilters ||
+    !!idFilters ||
+    !!elementFilters ||
+    !!removeAttributes ||
+    removeAllAttributes ||
+    removeEmptyElements;
 
   await paginatedScrape(pagesApiUrl, limitPages, async (pages) => {
     if (!Array.isArray(pages) || pages.length === 0) {
@@ -65,6 +72,8 @@ export async function scrapePages({
             classFilters,
             idFilters,
             elementFilters,
+            removeAttributes,
+            removeAllAttributes,
             removeEmptyElements,
           })
         )
@@ -77,6 +86,8 @@ export async function scrapePages({
             classFilters,
             idFilters,
             elementFilters,
+            removeAttributes,
+            removeAllAttributes,
             removeEmptyElements,
           })
         )

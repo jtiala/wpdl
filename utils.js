@@ -67,7 +67,14 @@ export function formatStringAsHtml(string) {
 
 export function filterHtml(
   htmlString,
-  { classFilters, idFilters, elementFilters, removeEmptyElements }
+  {
+    classFilters,
+    idFilters,
+    elementFilters,
+    removeAttributes,
+    removeAllAttributes,
+    removeEmptyElements,
+  }
 ) {
   const dom = new jsdom.JSDOM(htmlString);
 
@@ -90,9 +97,23 @@ export function filterHtml(
   }
 
   if (removeEmptyElements) {
-    for (const element of dom.window.document.querySelectorAll("body > *")) {
+    for (const element of dom.window.document.querySelectorAll("body *")) {
       if (!element.textContent || element.textContent.trim().length === 0) {
         element.remove();
+      }
+    }
+  }
+
+  if (removeAllAttributes) {
+    for (const element of dom.window.document.querySelectorAll("body *")) {
+      while (element.attributes.length > 0) {
+        element.removeAttribute(element.attributes[0].name);
+      }
+    }
+  } else if (removeAttributes.length > 0) {
+    for (const element of dom.window.document.querySelectorAll("body *")) {
+      for (const attribute of removeAttributes) {
+        element.removeAttribute(attribute);
       }
     }
   }

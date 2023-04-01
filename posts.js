@@ -24,6 +24,8 @@ export async function scrapePosts({
   idFilters,
   elementFilters,
   jsonFilters,
+  removeAttributes,
+  removeAllAttributes,
   removeEmptyElements,
   limitPages,
 }) {
@@ -35,7 +37,12 @@ export async function scrapePosts({
   await mkdir(postsDir, { recursive: true });
 
   const saveUnmodifiedHtml =
-    !!classFilters || !!idFilters || !!elementFilters || removeEmptyElements;
+    !!classFilters ||
+    !!idFilters ||
+    !!elementFilters ||
+    !!removeAttributes ||
+    removeAllAttributes ||
+    removeEmptyElements;
 
   await paginatedScrape(postsApiUrl, limitPages, async (posts) => {
     if (!Array.isArray(posts) || posts.length === 0) {
@@ -65,6 +72,8 @@ export async function scrapePosts({
             classFilters,
             idFilters,
             elementFilters,
+            removeAttributes,
+            removeAllAttributes,
             removeEmptyElements,
           })
         )
@@ -77,6 +86,8 @@ export async function scrapePosts({
             classFilters,
             idFilters,
             elementFilters,
+            removeAttributes,
+            removeAllAttributes,
             removeEmptyElements,
           })
         )

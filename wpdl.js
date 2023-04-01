@@ -45,6 +45,14 @@ const argv = yargs(hideBin(process.argv))
     description:
       "Filter out properties from JSONs with the given key. If the key ends with *, it's considered as a wildcard.",
   })
+  .option("removeAttribute", {
+    type: "string",
+    description: "Remove given attribute from all HTML elements",
+  })
+  .option("removeAllAttributes", {
+    type: "boolean",
+    description: "Remove all attributes from all HTML elements",
+  })
   .option("removeEmptyElements", {
     type: "boolean",
     description: "Remove HTML elements that doesn't have text content",
@@ -112,6 +120,12 @@ const jsonFilters = Array.isArray(argv.jsonFilter)
   ? [argv.jsonFilter]
   : [];
 
+const removeAttributes = Array.isArray(argv.removeAttribute)
+  ? argv.removeAttribute
+  : typeof argv.removeAttribute === "string"
+  ? [argv.removeAttribute]
+  : [];
+
 info("--- wpdl ---");
 info(`Starting to scrape ${chalk.blue(argv.url)}`);
 
@@ -127,6 +141,8 @@ if (argv.pages) {
     idFilters,
     elementFilters,
     jsonFilters,
+    removeAttributes,
+    removeAllAttributes: argv.removeAllAttributes,
     removeEmptyElements: argv.removeEmptyElements,
     limitPages: argv.limitPages,
   });
@@ -140,6 +156,8 @@ if (argv.posts) {
     idFilters,
     elementFilters,
     jsonFilters,
+    removeAttributes,
+    removeAllAttributes: argv.removeAllAttributes,
     removeEmptyElements: argv.removeEmptyElements,
     limitPages: argv.limitPages,
   });
