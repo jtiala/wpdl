@@ -2,6 +2,7 @@ import chalk from "chalk";
 import { mkdir, writeFile } from "fs/promises";
 import {
   cleanDir,
+  downloadMediaItemImage,
   filterHtml,
   filterJSON,
   formatObjectAsJson,
@@ -103,6 +104,16 @@ export async function scrapePosts({
           `${postDir}/rendered-excerpt-unmodified.html`,
           formatStringAsHtml(post.excerpt.rendered)
         );
+      }
+
+      if (post.featured_media) {
+        const featuredMediaApiUrl = `${apiUrl}/media/${post.featured_media}`;
+        const featuredMediaResponse = await fetch(featuredMediaApiUrl);
+        const featuredMediaItem = await featuredMediaResponse.json();
+
+        if (featuredMediaItem.media_type === "image") {
+          await downloadMediaItemImage(featuredMediaItem, postDir, "featured");
+        }
       }
 
       info(`Scraped post ${chalk.blue(postIdentifier)}`);

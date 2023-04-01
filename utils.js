@@ -1,6 +1,7 @@
 import chalk from "chalk";
-import { mkdir, rm } from "fs/promises";
+import { mkdir, rm, writeFile } from "fs/promises";
 import jsdom from "jsdom";
+import mime from "mime-types";
 import prettier from "prettier";
 
 export const info = (message) => console.log(chalk.cyan(message) + "\n");
@@ -136,6 +137,24 @@ export function filterJSON(json, jsonFilters) {
         )
     )
     .reduce((filteredJson, key) => ({ ...filteredJson, [key]: json[key] }), {});
+}
+
+export async function downloadMediaItemImage(mediaItem, dir, overrideFileName) {
+  if (
+    mediaItem.media_type === "image" &&
+    mediaItem.media_details.sizes.full.source_url &&
+    mediaItem.mime_type
+  ) {
+    const fullImageUrl = mediaItem.media_details.sizes.full.source_url;
+    const fileName = `${overrideFileName || mediaItem.slug}.${mime.extension(
+      mediaItem.mime_type
+    )}`;
+    const imageData = await fetch(fullImageUrl);
+    const blob = await imageData.blob();
+    const arrayBuffer = await blob.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    await writeFile(`${dir}/${fileName}`, buffer);
+  }
 }
 
 export async function cleanDir(dir, recreate = true, silent = false) {

@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import { mkdir, writeFile } from "fs/promises";
-import mime from "mime-types";
 import {
   cleanDir,
+  downloadMediaItemImage,
   filterJSON,
   formatObjectAsJson,
   info,
@@ -53,20 +53,8 @@ export async function scrapeMedia({
         formatObjectAsJson(getMediaItemMetadata(mediaItem, jsonFilters))
       );
 
-      if (mediaItem.media_type === "image" && mediaItem.mime_type) {
-        const fullImageUrl = mediaItem.media_details.sizes.full.source_url;
-
-        if (fullImageUrl) {
-          const fileName = `${mediaItem.slug}.${mime.extension(
-            mediaItem.mime_type
-          )}`;
-
-          const imageData = await fetch(fullImageUrl);
-          const blob = await imageData.blob();
-          const arrayBuffer = await blob.arrayBuffer();
-          const buffer = Buffer.from(arrayBuffer);
-          await writeFile(`${mediaItemDir}/${fileName}`, buffer);
-        }
+      if (mediaItem.media_type === "image") {
+        await downloadMediaItemImage(mediaItem, mediaItemDir);
       }
 
       info(`Scraped media item ${chalk.blue(mediaItemIdentifier)}`);
