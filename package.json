@@ -1,6 +1,6 @@
 {
   "name": "wpdl",
-  "version": "0.1.0-dev",
+  "version": "0.1.0",
   "description": "Scrape data from a WordPress instance.",
   "author": "Joonas Tiala <joonas.tiala@gmail.com>",
   "license": "MIT",
@@ -15,11 +15,11 @@
   "dependencies": {
     "chalk": "5.2.0",
     "jsdom": "21.1.1",
-    "mime-types": "^2.1.35",
-    "prettier": "2.8.5",
+    "mime-types": "2.1.35",
+    "prettier": "2.8.7",
     "yargs": "17.7.1"
   },
   "devDependencies": {
-    "eslint": "^8.37.0"
+    "eslint": "8.37.0"
   }
 }
