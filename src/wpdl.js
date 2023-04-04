@@ -4,15 +4,17 @@ import { access } from "fs/promises";
 import process from "node:process";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
-import { scrapeMedia } from "./media.js";
-import { scrapePages } from "./pages.js";
-import { scrapePosts } from "./posts.js";
+import { scrapeMedia } from "./scrapers/media.js";
+import { scrapePages } from "./scrapers/pages.js";
+import { scrapePosts } from "./scrapers/posts.js";
 import { cleanDir } from "./utils/fs.js";
 import { error, info } from "./utils/log.js";
 import { isValidUrl } from "./utils/url.js";
 
 const argv = yargs(hideBin(process.argv))
-  .usage("Usage: $0 --url https://your-wp-instance.com [options]")
+  .usage(
+    "Usage: npm run scrape -- --url https://your-wp-instance.com [options]"
+  )
   .option("url", {
     alias: "u",
     type: "string",

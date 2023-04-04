@@ -7,8 +7,10 @@
   "main": "wpdl.js",
   "type": "module",
   "scripts": {
-    "lint": "eslint '**/*.{jsx,js}'",
-    "lint:fix": "eslint --fix '**/*.{jsx,js}'"
+    "scrape": "./src/wpdl.js",
+    "help": "./src/wpdl.js --help",
+    "lint": "eslint \"src/**/*.js\"",
+    "lint:fix": "eslint --fix \"src/**/*.js\""
   },
   "dependencies": {
     "chalk": "5.2.0",

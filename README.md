@@ -17,5 +17,5 @@ npm i
 To see usage, run
 
 ```bash
-./wpdl.js --help
+npm run help
 ```
