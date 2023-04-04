@@ -38,10 +38,10 @@ export async function scrapePosts({
   await mkdir(postsDir, { recursive: true });
 
   const saveUnmodifiedHtml =
-    !!classFilters ||
-    !!idFilters ||
-    !!elementFilters ||
-    !!removeAttributes ||
+    classFilters.length > 0 ||
+    idFilters.length > 0 ||
+    elementFilters.length > 0 ||
+    removeAttributes.length > 0 ||
     removeAllAttributes ||
     removeEmptyElements;
 
