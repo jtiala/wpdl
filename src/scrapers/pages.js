@@ -30,7 +30,7 @@ export async function scrapePages({
   removeEmptyElements,
   limitPages,
 }) {
-  info("Scraping pages...", true);
+  info(`Scraping ${chalk.blue("pages")}...`, true);
 
   const pagesApiUrl = `${apiUrl}/pages`;
   const pagesDir = `${dataDir}/pages`;
@@ -114,6 +114,7 @@ export async function scrapePages({
       ];
 
       if (mediaIds) {
+        info(`Found ${chalk.blue(mediaIds.length)} image(s).`);
         const imagesDir = `${pageDir}/images`;
         await mkdir(imagesDir, { recursive: true });
         await downloadImages(mediaIds, apiUrl, imagesDir);

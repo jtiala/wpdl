@@ -21,7 +21,7 @@ export async function scrapeMedia({
   jsonFilters,
   limitPages,
 }) {
-  info("Scraping media...", true);
+  info(`Scraping ${chalk.blue("media")}...`, true);
 
   const mediaApiUrl = `${apiUrl}/media`;
   const mediaDir = `${dataDir}/media`;

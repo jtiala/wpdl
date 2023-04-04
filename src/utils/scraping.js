@@ -141,10 +141,6 @@ export async function findImageMediaIds(htmlString) {
 
   let uniqueMediaIds = [...new Set(mediaIds)];
 
-  if (uniqueMediaIds.length > 0) {
-    info(`Found ${chalk.blue(uniqueMediaIds.length)} images.`);
-  }
-
   return uniqueMediaIds;
 }
 
