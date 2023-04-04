@@ -113,7 +113,7 @@ export async function scrapePages({
         ...(await findImageMediaIds(page.content.rendered)),
       ];
 
-      if (mediaIds) {
+      if (mediaIds.length > 0) {
         info(`Found ${chalk.blue(mediaIds.length)} image(s).`);
         const imagesDir = `${pageDir}/images`;
         await mkdir(imagesDir, { recursive: true });
