@@ -19,3 +19,5 @@ To see usage, run
 ```bash
 npm run help
 ```
+
+![Screenshot of example usage of the tool in a terminal emulator.](./usage.png)
