@@ -131,10 +131,11 @@ const removeAttributes = Array.isArray(argv.removeAttribute)
   ? [argv.removeAttribute]
   : [];
 
-info("--- wpdl ---");
-info(`Starting to scrape ${chalk.blue(argv.url)}`);
+info("--- wpdl ---", true);
+info(`Starting to scrape ${chalk.blue(argv.url)}`, true);
 
 if (argv.clean) {
+  info(`Cleaning directory ${chalk.blue(targetDiv)}`, true);
   await cleanDir(targetDiv);
 }
 

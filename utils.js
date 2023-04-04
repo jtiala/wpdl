@@ -4,9 +4,21 @@ import jsdom from "jsdom";
 import mime from "mime-types";
 import prettier from "prettier";
 
-export const info = (message) => console.log(chalk.cyan(message) + "\n");
-export const success = (message) => console.log(chalk.green(message) + "\n");
-export const error = (message) => console.log(chalk.red(message) + "\n");
+function formatLogMessage(message, newLine = false) {
+  return `${message}${newLine ? "\n" : ""}`;
+}
+
+export function info(message, newLine = false) {
+  return console.log(formatLogMessage(chalk.cyan(message), newLine));
+}
+
+export function success(message, newLine = false) {
+  return console.log(formatLogMessage(chalk.green(message), newLine));
+}
+
+export function error(message, newLine = false) {
+  return console.log(formatLogMessage(chalk.red(message), newLine));
+}
 
 export const isValidUrl = (string) => {
   try {
@@ -33,9 +45,10 @@ export async function paginatedScrape(url, limitPages, handleData) {
       page !== limitPages && linkHeader && linkHeader.includes(`rel=\"next\"`);
 
     info(
-      `Scraping page ${chalk.green(page)} of ${chalk.green(
+      `Scraping page ${chalk.blue(page)} of ${chalk.blue(
         totalPagesHeader
-      )} from ${chalk.green(nextPageUrl)} ...`
+      )} from ${chalk.blue(nextPageUrl)} ...`,
+      true
     );
 
     if (pagesRemaining) {
@@ -149,11 +162,13 @@ export async function findImageMediaIds(htmlString) {
     }
   }
 
-  if (mediaIds.length > 0) {
-    info(`Found ${chalk.blue(mediaIds.length)} images`);
+  let uniqueMediaIds = [...new Set(mediaIds)];
+
+  if (uniqueMediaIds.length > 0) {
+    info(`Found ${chalk.blue(uniqueMediaIds.length)} images.`);
   }
 
-  return mediaIds;
+  return uniqueMediaIds;
 }
 
 export async function downloadImages(mediaIds, apiUrl, dir) {

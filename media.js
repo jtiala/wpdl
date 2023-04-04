@@ -22,7 +22,7 @@ export async function scrapeMedia({
   jsonFilters,
   limitPages,
 }) {
-  info("--- media ---");
+  info("Scraping media...", true);
 
   const mediaApiUrl = `${apiUrl}/media`;
   const mediaDir = `${dataDir}/media`;
@@ -41,6 +41,8 @@ export async function scrapeMedia({
       const mediaItemIdentifier = `${mediaItem.id}-${mediaItem.slug}`;
       const mediaItemDir = `${mediaDir}/${mediaItemIdentifier}`;
 
+      info(`Scraping media item ${chalk.blue(mediaItemIdentifier)}...`);
+
       await cleanDir(mediaItemDir, true, true);
 
       await writeFile(
@@ -57,9 +59,9 @@ export async function scrapeMedia({
         await downloadMediaItemImage(mediaItem, mediaItemDir);
       }
 
-      info(`Scraped media item ${chalk.blue(mediaItemIdentifier)}`);
+      success("Done.", true);
     }
   });
 
-  success("Done.");
+  success("Done scraping media.", true);
 }

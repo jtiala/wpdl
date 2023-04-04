@@ -31,7 +31,7 @@ export async function scrapePosts({
   removeEmptyElements,
   limitPages,
 }) {
-  info("--- posts ---");
+  info("Scraping posts...", true);
 
   const postsApiUrl = `${apiUrl}/posts`;
   const postsDir = `${dataDir}/posts`;
@@ -57,6 +57,8 @@ export async function scrapePosts({
     for (const post of posts) {
       const postIdentifier = `${post.id}-${post.slug}`;
       const postDir = `${postsDir}/${postIdentifier}`;
+
+      info(`Scraping post ${chalk.blue(postIdentifier)}...`);
 
       await cleanDir(postDir, true, true);
 
@@ -118,9 +120,9 @@ export async function scrapePosts({
         await downloadImages(mediaIds, apiUrl, imagesDir);
       }
 
-      info(`Scraped post ${chalk.blue(postIdentifier)}`);
+      success("Done.", true);
     }
   });
 
-  success("Done.");
+  success("Done scraping posts.", true);
 }

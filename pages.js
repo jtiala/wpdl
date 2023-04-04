@@ -31,7 +31,7 @@ export async function scrapePages({
   removeEmptyElements,
   limitPages,
 }) {
-  info("--- pages ---");
+  info("Scraping pages...", true);
 
   const pagesApiUrl = `${apiUrl}/pages`;
   const pagesDir = `${dataDir}/pages`;
@@ -57,6 +57,8 @@ export async function scrapePages({
     for (const page of pages) {
       const pageIdentifier = `${page.id}-${page.slug}`;
       const pageDir = `${pagesDir}/${pageIdentifier}`;
+
+      info(`Scraping page ${chalk.blue(pageIdentifier)}...`);
 
       await cleanDir(pageDir, true, true);
 
@@ -118,9 +120,9 @@ export async function scrapePages({
         await downloadImages(mediaIds, apiUrl, imagesDir);
       }
 
-      info(`Scraped page ${chalk.blue(pageIdentifier)}`);
+      success("Done.", true);
     }
   });
 
-  success("Done.");
+  success("Done scraping pages.", true);
 }
