@@ -1,15 +1,14 @@
 #!/usr/bin/env node
 import chalk from "chalk";
-import { access } from "fs/promises";
 import process from "node:process";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import { scrapeMedia } from "./scrapers/media.js";
 import { scrapePages } from "./scrapers/pages.js";
 import { scrapePosts } from "./scrapers/posts.js";
-import { cleanDir } from "./utils/fs.js";
+import { cleanDir, createDir } from "./utils/fs.js";
 import { error, info } from "./utils/log.js";
-import { isValidUrl } from "./utils/url.js";
+import { getSiteNameFromUrl, isValidUrl } from "./utils/url.js";
 
 const argv = yargs(hideBin(process.argv))
   .usage(
@@ -86,25 +85,17 @@ if (!isValidUrl(argv.url)) {
   process.exit(1);
 }
 
-const targetDiv = String(
+const apiUrl = `${argv.url}/wp-json/wp/v2`;
+
+const siteName = getSiteNameFromUrl(argv.url);
+
+const targetDir = String(
   argv.targetDir.substring(argv.targetDir.length - 1) === "/"
     ? argv.targetDir.slice(0, -1)
     : argv.targetDir
 );
 
-try {
-  await access(targetDiv);
-} catch (e) {
-  error(
-    `Target directory ${chalk.blue(
-      targetDiv
-    )} doesn't exist or you don't have access to it.`
-  );
-
-  process.exit(1);
-}
-
-const apiUrl = `${argv.url}/wp-json/wp/v2`;
+const dataDir = `${targetDir}/${siteName}`;
 
 const classFilters = Array.isArray(argv.classFilter)
   ? argv.classFilter
@@ -140,13 +131,15 @@ info("--- wpdl ---", true);
 info(`Starting to scrape ${chalk.blue(argv.url)}`, true);
 
 if (argv.clean) {
-  await cleanDir(targetDiv);
+  await cleanDir(targetDir);
 }
+
+await createDir(dataDir);
 
 if (argv.pages) {
   await scrapePages({
     apiUrl,
-    dataDir: targetDiv,
+    dataDir,
     classFilters,
     idFilters,
     elementFilters,
@@ -161,7 +154,7 @@ if (argv.pages) {
 if (argv.posts) {
   await scrapePosts({
     apiUrl,
-    dataDir: targetDiv,
+    dataDir,
     classFilters,
     idFilters,
     elementFilters,
@@ -176,7 +169,7 @@ if (argv.posts) {
 if (argv.media) {
   await scrapeMedia({
     apiUrl,
-    dataDir: targetDiv,
+    dataDir,
     jsonFilters,
     limitPages: argv.limitPages,
   });
