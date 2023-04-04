@@ -9,5 +9,5 @@ export function isValidUrl(string) {
 
 export function getSiteNameFromUrl(string) {
   const url = new URL(string);
-  return url.hostname.replace(".", "_");
+  return url.hostname.replaceAll(".", "_");
 }
