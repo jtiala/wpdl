@@ -1,14 +1,13 @@
 import chalk from "chalk";
 import { mkdir, writeFile } from "fs/promises";
+import { cleanDir } from "./utils/fs.js";
+import { info, success } from "./utils/log.js";
 import {
-  cleanDir,
   downloadMediaItemImage,
   filterJSON,
   formatObjectAsJson,
-  info,
   paginatedScrape,
-  success,
-} from "./utils.js";
+} from "./utils/scraping.js";
 
 function getMediaItemMetadata(mediaItem, jsonFilters) {
   const defaultRemoveKeys = ["_links"];

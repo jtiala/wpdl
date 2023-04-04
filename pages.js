@@ -1,17 +1,16 @@
 import chalk from "chalk";
 import { mkdir, writeFile } from "fs/promises";
+import { cleanDir } from "./utils/fs.js";
+import { info, success } from "./utils/log.js";
 import {
-  cleanDir,
   downloadImages,
   filterHtml,
   filterJSON,
   findImageMediaIds,
   formatObjectAsJson,
   formatStringAsHtml,
-  info,
   paginatedScrape,
-  success,
-} from "./utils.js";
+} from "./utils/scraping.js";
 
 function getPageMetadata(page, jsonFilters) {
   const defaultRemoveKeys = ["content", "excerpt", "_links"];

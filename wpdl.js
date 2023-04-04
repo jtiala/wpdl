@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 import chalk from "chalk";
 import { access } from "fs/promises";
+import process from "node:process";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import { scrapeMedia } from "./media.js";
 import { scrapePages } from "./pages.js";
 import { scrapePosts } from "./posts.js";
-import { cleanDir, error, info, isValidUrl } from "./utils.js";
+import { cleanDir } from "./utils/fs.js";
+import { error, info } from "./utils/log.js";
+import { isValidUrl } from "./utils/url.js";
 
 const argv = yargs(hideBin(process.argv))
   .usage("Usage: $0 --url https://your-wp-instance.com [options]")
@@ -135,7 +138,6 @@ info("--- wpdl ---", true);
 info(`Starting to scrape ${chalk.blue(argv.url)}`, true);
 
 if (argv.clean) {
-  info(`Cleaning directory ${chalk.blue(targetDiv)}`, true);
   await cleanDir(targetDiv);
 }
 

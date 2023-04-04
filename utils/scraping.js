@@ -1,33 +1,10 @@
 import chalk from "chalk";
-import { mkdir, rm, writeFile } from "fs/promises";
+import { writeFile } from "fs/promises";
 import jsdom from "jsdom";
 import mime from "mime-types";
+import { Buffer } from "node:buffer";
 import prettier from "prettier";
-
-function formatLogMessage(message, newLine = false) {
-  return `${message}${newLine ? "\n" : ""}`;
-}
-
-export function info(message, newLine = false) {
-  return console.log(formatLogMessage(chalk.cyan(message), newLine));
-}
-
-export function success(message, newLine = false) {
-  return console.log(formatLogMessage(chalk.green(message), newLine));
-}
-
-export function error(message, newLine = false) {
-  return console.log(formatLogMessage(chalk.red(message), newLine));
-}
-
-export const isValidUrl = (string) => {
-  try {
-    new URL(string);
-    return true;
-  } catch (e) {
-    return false;
-  }
-};
+import { info } from "./log.js";
 
 export async function paginatedScrape(url, limitPages, handleData) {
   let page = 0;
@@ -42,7 +19,7 @@ export async function paginatedScrape(url, limitPages, handleData) {
     const linkHeader = response.headers.get("link");
 
     pagesRemaining =
-      page !== limitPages && linkHeader && linkHeader.includes(`rel=\"next\"`);
+      page !== limitPages && linkHeader && linkHeader.includes('rel="next"');
 
     info(
       `Scraping page ${chalk.blue(page)} of ${chalk.blue(
@@ -197,21 +174,5 @@ export async function downloadMediaItemImage(mediaItem, dir) {
     const buffer = Buffer.from(arrayBuffer);
     await writeFile(`${dir}/${fileName}`, buffer);
     info(`Downloaded image ${chalk.blue(fileName)}`);
-  }
-}
-
-export async function cleanDir(dir, recreate = true, silent = false) {
-  if (!silent) {
-    info(`Cleaning ${chalk.blue(dir)} ...`);
-  }
-
-  await rm(dir, { recursive: true, force: true });
-
-  if (recreate) {
-    await mkdir(dir, { recursive: true });
-  }
-
-  if (!silent) {
-    success("Done.");
   }
 }
