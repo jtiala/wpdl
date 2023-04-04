@@ -128,7 +128,7 @@ const removeAttributes = Array.isArray(argv.removeAttribute)
   : [];
 
 info("--- wpdl ---", true);
-info(`Starting to scrape ${chalk.blue(argv.url)}`, true);
+info(`Starting to scrape ${chalk.blue(argv.url)} ...`, true);
 
 if (argv.clean) {
   await cleanDir(targetDir);
