@@ -6,11 +6,18 @@
   "license": "MIT",
   "main": "wpdl.js",
   "type": "module",
+  "scripts": {
+    "lint": "eslint '**/*.{jsx,js}'",
+    "lint:fix": "eslint --fix '**/*.{jsx,js}'"
+  },
   "dependencies": {
     "chalk": "5.2.0",
     "jsdom": "21.1.1",
     "mime-types": "^2.1.35",
     "prettier": "2.8.5",
     "yargs": "17.7.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.37.0"
   }
 }
