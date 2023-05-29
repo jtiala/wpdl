@@ -8,6 +8,7 @@ import { scrapeMedia } from "./scrapers/media.js";
 import { scrapePages } from "./scrapers/pages.js";
 import { scrapePosts } from "./scrapers/posts.js";
 import { scrapeTags } from "./scrapers/tags.js";
+import { scrapeUsers } from "./scrapers/users.js";
 import { cleanDir, createDir } from "./utils/fs.js";
 import { error, info } from "./utils/log.js";
 import { getSiteNameFromUrl, isValidUrl } from "./utils/url.js";
@@ -38,6 +39,10 @@ const argv = yargs(hideBin(process.argv))
   .option("categories", {
     type: "boolean",
     description: "Scrape categories",
+  })
+  .option("users", {
+    type: "boolean",
+    description: "Scrape users",
   })
   .option("targetDir", {
     alias: "t",
@@ -194,6 +199,15 @@ if (argv.tags) {
 
 if (argv.categories) {
   await scrapeCategories({
+    apiUrl,
+    dataDir,
+    jsonFilters,
+    limitPages: argv.limitPages,
+  });
+}
+
+if (argv.users) {
+  await scrapeUsers({
     apiUrl,
     dataDir,
     jsonFilters,
