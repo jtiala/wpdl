@@ -4,6 +4,7 @@ import process from "node:process";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import { scrapeCategories } from "./scrapers/categories.js";
+import { scrapeComments } from "./scrapers/comments.js";
 import { scrapeMedia } from "./scrapers/media.js";
 import { scrapePages } from "./scrapers/pages.js";
 import { scrapePosts } from "./scrapers/posts.js";
@@ -27,6 +28,10 @@ const argv = yargs(hideBin(process.argv))
   .option("posts", {
     type: "boolean",
     description: "Scrape posts",
+  })
+  .option("comments", {
+    type: "boolean",
+    description: "Scrape comments",
   })
   .option("media", {
     type: "boolean",
@@ -166,6 +171,21 @@ if (argv.pages) {
 
 if (argv.posts) {
   await scrapePosts({
+    apiUrl,
+    dataDir,
+    classFilters,
+    idFilters,
+    elementFilters,
+    jsonFilters,
+    removeAttributes,
+    removeAllAttributes: argv.removeAllAttributes,
+    removeEmptyElements: argv.removeEmptyElements,
+    limitPages: argv.limitPages,
+  });
+}
+
+if (argv.comments) {
+  await scrapeComments({
     apiUrl,
     dataDir,
     classFilters,
