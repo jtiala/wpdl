@@ -112,6 +112,14 @@ export function filterHtml(
   return dom.window.document.body.innerHTML;
 }
 
+export function getInJSON(json, key) {
+  if (key in json && json[key] !== undefined && json[key] !== null) {
+    return json[key];
+  }
+
+  return undefined;
+}
+
 export function filterJSON(json, jsonFilters) {
   const removeKeys = jsonFilters.filter((filter) => !filter.endsWith("*"));
   const removeStartingWith = jsonFilters
@@ -127,6 +135,16 @@ export function filterJSON(json, jsonFilters) {
         )
     )
     .reduce((filteredJson, key) => ({ ...filteredJson, [key]: json[key] }), {});
+}
+
+export function getLinks(json) {
+  return getInJSON(json, "_links");
+}
+
+export function getMetadata(json, jsonFilters) {
+  const defaultRemoveKeys = ["content", "excerpt", "_links"];
+
+  return filterJSON(json, [...defaultRemoveKeys, ...jsonFilters]);
 }
 
 export async function findImageMediaIds(htmlString) {

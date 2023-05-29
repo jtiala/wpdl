@@ -5,18 +5,13 @@ import { info, success } from "../utils/log.js";
 import {
   downloadImages,
   filterHtml,
-  filterJSON,
   findImageMediaIds,
   formatObjectAsJson,
   formatStringAsHtml,
+  getLinks,
+  getMetadata,
   paginatedScrape,
 } from "../utils/scraping.js";
-
-function getPageMetadata(page, jsonFilters) {
-  const defaultRemoveKeys = ["content", "excerpt", "_links"];
-
-  return filterJSON(page, [...defaultRemoveKeys, ...jsonFilters]);
-}
 
 export async function scrapePages({
   apiUrl,
@@ -65,7 +60,12 @@ export async function scrapePages({
 
       await writeFile(
         `${pageDir}/meta-data.json`,
-        formatObjectAsJson(getPageMetadata(page, jsonFilters))
+        formatObjectAsJson(getMetadata(page, jsonFilters))
+      );
+
+      await writeFile(
+        `${pageDir}/links.json`,
+        formatObjectAsJson(getLinks(page))
       );
 
       await writeFile(
