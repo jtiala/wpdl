@@ -6,6 +6,7 @@ import yargs from "yargs/yargs";
 import { scrapeMedia } from "./scrapers/media.js";
 import { scrapePages } from "./scrapers/pages.js";
 import { scrapePosts } from "./scrapers/posts.js";
+import { scrapeTags } from "./scrapers/tags.js";
 import { cleanDir, createDir } from "./utils/fs.js";
 import { error, info } from "./utils/log.js";
 import { getSiteNameFromUrl, isValidUrl } from "./utils/url.js";
@@ -28,6 +29,10 @@ const argv = yargs(hideBin(process.argv))
   .option("media", {
     type: "boolean",
     description: "Scrape media",
+  })
+  .option("tags", {
+    type: "boolean",
+    description: "Scrape tags",
   })
   .option("targetDir", {
     alias: "t",
@@ -166,6 +171,15 @@ if (argv.posts) {
 
 if (argv.media) {
   await scrapeMedia({
+    apiUrl,
+    dataDir,
+    jsonFilters,
+    limitPages: argv.limitPages,
+  });
+}
+
+if (argv.tags) {
+  await scrapeTags({
     apiUrl,
     dataDir,
     jsonFilters,
