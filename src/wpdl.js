@@ -4,10 +4,12 @@ import process from "node:process";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import { scrapeCategories } from "./scrapers/categories.js";
+import { scrapeComments } from "./scrapers/comments.js";
 import { scrapeMedia } from "./scrapers/media.js";
 import { scrapePages } from "./scrapers/pages.js";
 import { scrapePosts } from "./scrapers/posts.js";
 import { scrapeTags } from "./scrapers/tags.js";
+import { scrapeUsers } from "./scrapers/users.js";
 import { cleanDir, createDir } from "./utils/fs.js";
 import { error, info } from "./utils/log.js";
 import { getSiteNameFromUrl, isValidUrl } from "./utils/url.js";
@@ -27,6 +29,10 @@ const argv = yargs(hideBin(process.argv))
     type: "boolean",
     description: "Scrape posts",
   })
+  .option("comments", {
+    type: "boolean",
+    description: "Scrape comments",
+  })
   .option("media", {
     type: "boolean",
     description: "Scrape media",
@@ -38,6 +44,10 @@ const argv = yargs(hideBin(process.argv))
   .option("categories", {
     type: "boolean",
     description: "Scrape categories",
+  })
+  .option("users", {
+    type: "boolean",
+    description: "Scrape users",
   })
   .option("targetDir", {
     alias: "t",
@@ -174,6 +184,21 @@ if (argv.posts) {
   });
 }
 
+if (argv.comments) {
+  await scrapeComments({
+    apiUrl,
+    dataDir,
+    classFilters,
+    idFilters,
+    elementFilters,
+    jsonFilters,
+    removeAttributes,
+    removeAllAttributes: argv.removeAllAttributes,
+    removeEmptyElements: argv.removeEmptyElements,
+    limitPages: argv.limitPages,
+  });
+}
+
 if (argv.media) {
   await scrapeMedia({
     apiUrl,
@@ -194,6 +219,15 @@ if (argv.tags) {
 
 if (argv.categories) {
   await scrapeCategories({
+    apiUrl,
+    dataDir,
+    jsonFilters,
+    limitPages: argv.limitPages,
+  });
+}
+
+if (argv.users) {
+  await scrapeUsers({
     apiUrl,
     dataDir,
     jsonFilters,
