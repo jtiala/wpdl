@@ -4,16 +4,11 @@ import { cleanDir } from "../utils/fs.js";
 import { info, success } from "../utils/log.js";
 import {
   downloadMediaItemImage,
-  filterJSON,
   formatObjectAsJson,
+  getLinks,
+  getMetadata,
   paginatedScrape,
 } from "../utils/scraping.js";
-
-function getMediaItemMetadata(mediaItem, jsonFilters) {
-  const defaultRemoveKeys = ["_links"];
-
-  return filterJSON(mediaItem, [...defaultRemoveKeys, ...jsonFilters]);
-}
 
 export async function scrapeMedia({
   apiUrl,
@@ -51,7 +46,12 @@ export async function scrapeMedia({
 
       await writeFile(
         `${mediaItemDir}/meta-data.json`,
-        formatObjectAsJson(getMediaItemMetadata(mediaItem, jsonFilters))
+        formatObjectAsJson(getMetadata(mediaItem, jsonFilters))
+      );
+
+      await writeFile(
+        `${mediaItemDir}/links.json`,
+        formatObjectAsJson(getLinks(mediaItem))
       );
 
       if (mediaItem.media_type === "image") {

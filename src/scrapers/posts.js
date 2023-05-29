@@ -5,18 +5,13 @@ import { info, success } from "../utils/log.js";
 import {
   downloadImages,
   filterHtml,
-  filterJSON,
   findImageMediaIds,
   formatObjectAsJson,
   formatStringAsHtml,
+  getLinks,
+  getMetadata,
   paginatedScrape,
 } from "../utils/scraping.js";
-
-function getPostMetadata(post, jsonFilters) {
-  const defaultRemoveKeys = ["content", "excerpt", "_links"];
-
-  return filterJSON(post, [...defaultRemoveKeys, ...jsonFilters]);
-}
 
 export async function scrapePosts({
   apiUrl,
@@ -65,7 +60,12 @@ export async function scrapePosts({
 
       await writeFile(
         `${postDir}/meta-data.json`,
-        formatObjectAsJson(getPostMetadata(post, jsonFilters))
+        formatObjectAsJson(getMetadata(post, jsonFilters))
+      );
+
+      await writeFile(
+        `${postsDir}/links.json`,
+        formatObjectAsJson(getLinks(post))
       );
 
       await writeFile(
