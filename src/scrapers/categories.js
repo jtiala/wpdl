@@ -18,6 +18,7 @@ export async function scrapeCategories({
   info(`Scraping ${chalk.blue("categories")}...`, true);
 
   const categoriesApiUrl = `${apiUrl}/categories`;
+  const postsApiUrl = `${apiUrl}/posts`;
   const categoriesDir = `${dataDir}/categories`;
 
   await mkdir(categoriesDir, { recursive: true });
@@ -52,6 +53,37 @@ export async function scrapeCategories({
         `${categoryDir}/links.json`,
         formatObjectAsJson(getLinks(category))
       );
+
+      let postIds = [];
+
+      info(
+        `Scraping ${chalk.blue("posts")} for category ${chalk.blue(
+          categoryIdentifier
+        )}...`
+      );
+
+      await paginatedScrape(
+        `${postsApiUrl}?categories=${category.id}`,
+        limitPages,
+        async (posts) => {
+          if (!Array.isArray(posts) || posts.length === 0) {
+            info("No posts found for the category.");
+
+            return;
+          }
+
+          for (const post of posts) {
+            postIds = [...postIds, post.id];
+          }
+        }
+      );
+
+      if (postIds.length > 0) {
+        await writeFile(
+          `${categoryDir}/posts.json`,
+          formatObjectAsJson(postIds)
+        );
+      }
 
       success("Done.", true);
     }

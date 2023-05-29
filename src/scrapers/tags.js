@@ -13,6 +13,7 @@ export async function scrapeTags({ apiUrl, dataDir, jsonFilters, limitPages }) {
   info(`Scraping ${chalk.blue("tags")}...`, true);
 
   const tagsApiUrl = `${apiUrl}/tags`;
+  const postsApiUrl = `${apiUrl}/posts`;
   const tagsDir = `${dataDir}/tags`;
 
   await mkdir(tagsDir, { recursive: true });
@@ -44,6 +45,34 @@ export async function scrapeTags({ apiUrl, dataDir, jsonFilters, limitPages }) {
         `${tagDir}/links.json`,
         formatObjectAsJson(getLinks(tag))
       );
+
+      let postIds = [];
+
+      info(
+        `Scraping ${chalk.blue("posts")} for tag ${chalk.blue(
+          tagIdentifier
+        )}...`
+      );
+
+      await paginatedScrape(
+        `${postsApiUrl}?tag=${tag.id}`,
+        limitPages,
+        async (posts) => {
+          if (!Array.isArray(posts) || posts.length === 0) {
+            info("No posts found for the tag.");
+
+            return;
+          }
+
+          for (const post of posts) {
+            postIds = [...postIds, post.id];
+          }
+        }
+      );
+
+      if (postIds.length > 0) {
+        await writeFile(`${tagDir}/posts.json`, formatObjectAsJson(postIds));
+      }
 
       success("Done.", true);
     }
