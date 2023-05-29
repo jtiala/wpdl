@@ -3,6 +3,7 @@ import chalk from "chalk";
 import process from "node:process";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
+import { scrapeCategories } from "./scrapers/categories.js";
 import { scrapeMedia } from "./scrapers/media.js";
 import { scrapePages } from "./scrapers/pages.js";
 import { scrapePosts } from "./scrapers/posts.js";
@@ -33,6 +34,10 @@ const argv = yargs(hideBin(process.argv))
   .option("tags", {
     type: "boolean",
     description: "Scrape tags",
+  })
+  .option("categories", {
+    type: "boolean",
+    description: "Scrape categories",
   })
   .option("targetDir", {
     alias: "t",
@@ -180,6 +185,15 @@ if (argv.media) {
 
 if (argv.tags) {
   await scrapeTags({
+    apiUrl,
+    dataDir,
+    jsonFilters,
+    limitPages: argv.limitPages,
+  });
+}
+
+if (argv.categories) {
+  await scrapeCategories({
     apiUrl,
     dataDir,
     jsonFilters,
