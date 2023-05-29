@@ -64,7 +64,7 @@ export async function scrapePosts({
       );
 
       await writeFile(
-        `${postDir}/links.json`,
+        `${postsDir}/links.json`,
         formatObjectAsJson(getLinks(post))
       );
 
