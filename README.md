@@ -8,7 +8,7 @@
 
 Scrape pages, posts, images and other data from a WordPress instance using the WordPress [REST API](https://developer.wordpress.org/rest-api/). Use simple command line arguments to clean up the scraped data.
 
-![Screenshot of example usage of the tool in a terminal emulator.](./usage.png)
+![Screenshot of example usage of the tool in a terminal emulator.](https://raw.githubusercontent.com/jtiala/wpdl/main/usage.png)
 
 ## Pre-requisites
 
