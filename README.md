@@ -12,30 +12,26 @@ Scrape pages, posts, images and other data from a WordPress instance using the W
 
 ## Pre-requisites
 
-Node.js v19 or newer (for native fetch support)
-
-## Installation
-
-```bash
-npm i
-```
+Node.js v19 or newer (for native fetch support).
 
 ## Usage examples
+
+Recommended way of using wpdl is with `npx`. You can also clone this repo and run locally, just replace `npx wpdl` with `npm run scrape -- `. Note: the double dash is needed to pass the arguments to the script.
 
 Scrape pages and posts
 
 ```bash
-npm run scrape -- --url https://your-wp-instance.com --pages --posts
+npx wpdl --url https://your-wp-instance.com --pages --posts
 ```
 
 Scrape pages and clean up the html by filtering out all `img` elements and elements with the class `foo`. Also remove all elements without text content. From the json files, remove all the Jetpack and Yoast SEO data.
 
 ```bash
-npm run scrape -- --url https://your-wp-instance.com --pages --elementFilter img --classFilter foo --jsonFilter "jetpack_*" --jsonFilter "yoast_*" --removeEmptyElements
+npx wpdl -- --url https://your-wp-instance.com --pages --elementFilter img --classFilter foo --jsonFilter "jetpack_*" --jsonFilter "yoast_*" --removeEmptyElements
 ```
 
 To see full usage, run
 
 ```bash
-npm run help
+npx wpdl -h
 ```

@@ -6,6 +6,7 @@
   "license": "MIT",
   "main": "wpdl.js",
   "type": "module",
+  "bin": "./src/wpdl.js",
   "scripts": {
     "scrape": "./src/wpdl.js",
     "help": "./src/wpdl.js --help",

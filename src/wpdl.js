@@ -11,9 +11,7 @@ import { error, info } from "./utils/log.js";
 import { getSiteNameFromUrl, isValidUrl } from "./utils/url.js";
 
 const argv = yargs(hideBin(process.argv))
-  .usage(
-    "Usage: npm run scrape -- --url https://your-wp-instance.com [options]"
-  )
+  .usage("Usage: npx wpdl --url https://your-wp-instance.com [options]")
   .option("url", {
     alias: "u",
     type: "string",
