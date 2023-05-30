@@ -13,6 +13,7 @@ import { scrapeUsers } from "./scrapers/users.js";
 import { cleanDir, createDir } from "./utils/fs.js";
 import { error, info } from "./utils/log.js";
 import { getSiteNameFromUrl, isValidUrl } from "./utils/url.js";
+import { isWpApiAccessible } from "./utils/wpapi.js";
 
 const argv = yargs(hideBin(process.argv))
   .usage("Usage: npx wpdl --url https://your-wp-instance.com [options]")
@@ -100,6 +101,15 @@ const argv = yargs(hideBin(process.argv))
 
 if (!isValidUrl(argv.url)) {
   error(`${chalk.blue(argv.url)} is not a valid URL`);
+  process.exit(1);
+}
+
+if (!(await isWpApiAccessible(argv.url))) {
+  error(
+    `${chalk.blue(
+      argv.url
+    )} is not accessible, is not a WordPress instance or the WordPress Rest API v2 is not enabled.`
+  );
   process.exit(1);
 }
 
