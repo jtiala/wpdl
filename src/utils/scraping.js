@@ -4,7 +4,7 @@ import jsdom from "jsdom";
 import mime from "mime-types";
 import { Buffer } from "node:buffer";
 import prettier from "prettier";
-import { info } from "./log.js";
+import { error, info } from "./log.js";
 
 export async function paginatedScrape(url, limitPages, handleData) {
   let page = 0;
@@ -15,6 +15,12 @@ export async function paginatedScrape(url, limitPages, handleData) {
   while (pagesRemaining) {
     page = page + 1;
     const response = await fetch(nextPageUrl);
+
+    if (!response.ok) {
+      error(`Couldn't fetch ${chalk.blue(url)}`);
+      return;
+    }
+
     const totalPagesHeader = response.headers.get("x-wp-totalpages");
     const linkHeader = response.headers.get("link");
 
@@ -166,6 +172,12 @@ export async function downloadImages(mediaIds, apiUrl, dir) {
   for (const mediaId of mediaIds) {
     const mediaItemApiUrl = `${apiUrl}/media/${mediaId}`;
     const response = await fetch(mediaItemApiUrl);
+
+    if (!response.ok) {
+      error(`Couldn't fetch ${chalk.blue(mediaItemApiUrl)}`);
+      return;
+    }
+
     const mediaItem = await response.json();
 
     if (mediaItem.media_type === "image") {
@@ -182,8 +194,15 @@ export async function downloadMediaItemImage(mediaItem, dir) {
   ) {
     const fullImageUrl = mediaItem.media_details.sizes.full.source_url;
     const fileName = `${mediaItem.slug}.${mime.extension(mediaItem.mime_type)}`;
-    const imageData = await fetch(fullImageUrl);
-    const blob = await imageData.blob();
+
+    const response = await fetch(fullImageUrl);
+
+    if (!response.ok) {
+      error(`Couldn't fetch ${chalk.blue(fullImageUrl)}`);
+      return;
+    }
+
+    const blob = await response.blob();
     const arrayBuffer = await blob.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     await writeFile(`${dir}/${fileName}`, buffer);
