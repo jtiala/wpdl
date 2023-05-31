@@ -13,7 +13,7 @@ export async function scrapeUsers({
   apiUrl,
   dataDir,
   jsonFilters,
-  limitPages,
+  limitItems,
 }) {
   info(`Scraping ${chalk.blue("users")}...`, true);
 
@@ -23,7 +23,7 @@ export async function scrapeUsers({
 
   await mkdir(usersDir, { recursive: true });
 
-  await paginatedScrape(usersApiUrl, limitPages, async (users) => {
+  await paginatedScrape(usersApiUrl, limitItems, async (users) => {
     if (!Array.isArray(users) || users.length === 0) {
       info("No users found.");
       cleanDir(usersDir, true);
@@ -61,7 +61,7 @@ export async function scrapeUsers({
 
       await paginatedScrape(
         `${postsApiUrl}?author=${user.id}`,
-        limitPages,
+        undefined,
         async (posts) => {
           if (!Array.isArray(posts) || posts.length === 0) {
             info("No posts found for the user.");

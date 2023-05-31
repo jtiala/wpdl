@@ -13,7 +13,7 @@ export async function scrapeCategories({
   apiUrl,
   dataDir,
   jsonFilters,
-  limitPages,
+  limitItems,
 }) {
   info(`Scraping ${chalk.blue("categories")}...`, true);
 
@@ -23,7 +23,7 @@ export async function scrapeCategories({
 
   await mkdir(categoriesDir, { recursive: true });
 
-  await paginatedScrape(categoriesApiUrl, limitPages, async (categories) => {
+  await paginatedScrape(categoriesApiUrl, limitItems, async (categories) => {
     if (!Array.isArray(categories) || categories.length === 0) {
       info("No categories found.");
       cleanDir(categoriesDir, true);
@@ -64,7 +64,7 @@ export async function scrapeCategories({
 
       await paginatedScrape(
         `${postsApiUrl}?categories=${category.id}`,
-        limitPages,
+        undefined,
         async (posts) => {
           if (!Array.isArray(posts) || posts.length === 0) {
             info("No posts found for the category.");

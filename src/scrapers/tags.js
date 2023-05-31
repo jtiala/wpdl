@@ -9,7 +9,7 @@ import {
   paginatedScrape,
 } from "../utils/scraping.js";
 
-export async function scrapeTags({ apiUrl, dataDir, jsonFilters, limitPages }) {
+export async function scrapeTags({ apiUrl, dataDir, jsonFilters, limitItems }) {
   info(`Scraping ${chalk.blue("tags")}...`, true);
 
   const tagsApiUrl = `${apiUrl}/tags`;
@@ -18,7 +18,7 @@ export async function scrapeTags({ apiUrl, dataDir, jsonFilters, limitPages }) {
 
   await mkdir(tagsDir, { recursive: true });
 
-  await paginatedScrape(tagsApiUrl, limitPages, async (tags) => {
+  await paginatedScrape(tagsApiUrl, limitItems, async (tags) => {
     if (!Array.isArray(tags) || tags.length === 0) {
       info("No tags found.");
       cleanDir(tagsDir, true);
@@ -56,7 +56,7 @@ export async function scrapeTags({ apiUrl, dataDir, jsonFilters, limitPages }) {
 
       await paginatedScrape(
         `${postsApiUrl}?tag=${tag.id}`,
-        limitPages,
+        undefined,
         async (posts) => {
           if (!Array.isArray(posts) || posts.length === 0) {
             info("No posts found for the tag.");

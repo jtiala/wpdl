@@ -14,7 +14,7 @@ export async function scrapeMedia({
   apiUrl,
   dataDir,
   jsonFilters,
-  limitPages,
+  limitItems,
 }) {
   info(`Scraping ${chalk.blue("media")}...`, true);
 
@@ -23,7 +23,7 @@ export async function scrapeMedia({
 
   await mkdir(mediaDir, { recursive: true });
 
-  await paginatedScrape(mediaApiUrl, limitPages, async (mediaList) => {
+  await paginatedScrape(mediaApiUrl, limitItems, async (mediaList) => {
     if (!Array.isArray(mediaList) || mediaList.length === 0) {
       info("No media found.");
       cleanDir(mediaDir, true);

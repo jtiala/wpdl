@@ -23,7 +23,7 @@ export async function scrapePages({
   removeAttributes,
   removeAllAttributes,
   removeEmptyElements,
-  limitPages,
+  limitItems,
 }) {
   info(`Scraping ${chalk.blue("pages")}...`, true);
 
@@ -40,7 +40,7 @@ export async function scrapePages({
     removeAllAttributes ||
     removeEmptyElements;
 
-  await paginatedScrape(pagesApiUrl, limitPages, async (pages) => {
+  await paginatedScrape(pagesApiUrl, limitItems, async (pages) => {
     if (!Array.isArray(pages) || pages.length === 0) {
       info("No pages found.");
       cleanDir(pagesDir, true);

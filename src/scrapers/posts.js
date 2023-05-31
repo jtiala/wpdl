@@ -23,7 +23,7 @@ export async function scrapePosts({
   removeAttributes,
   removeAllAttributes,
   removeEmptyElements,
-  limitPages,
+  limitItems,
 }) {
   info(`Scraping ${chalk.blue("posts")}...`, true);
 
@@ -40,7 +40,7 @@ export async function scrapePosts({
     removeAllAttributes ||
     removeEmptyElements;
 
-  await paginatedScrape(postsApiUrl, limitPages, async (posts) => {
+  await paginatedScrape(postsApiUrl, limitItems, async (posts) => {
     if (!Array.isArray(posts) || posts.length === 0) {
       info("No posts found.");
       cleanDir(postsDir, true);

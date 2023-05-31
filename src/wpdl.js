@@ -85,9 +85,9 @@ const argv = yargs(hideBin(process.argv))
     type: "boolean",
     description: "Remove HTML elements that doesn't have text content",
   })
-  .option("limitPages", {
+  .option("limitItems", {
     type: "number",
-    description: "Limit number of pages (per content type) to scrape",
+    description: "Limit number of items (per content type) to scrape.",
   })
   .option("clean", {
     alias: "c",
@@ -175,7 +175,7 @@ if (argv.pages) {
     removeAttributes,
     removeAllAttributes: argv.removeAllAttributes,
     removeEmptyElements: argv.removeEmptyElements,
-    limitPages: argv.limitPages,
+    limitItems: argv.limitItems,
   });
 }
 
@@ -190,7 +190,7 @@ if (argv.posts) {
     removeAttributes,
     removeAllAttributes: argv.removeAllAttributes,
     removeEmptyElements: argv.removeEmptyElements,
-    limitPages: argv.limitPages,
+    limitItems: argv.limitItems,
   });
 }
 
@@ -205,7 +205,7 @@ if (argv.comments) {
     removeAttributes,
     removeAllAttributes: argv.removeAllAttributes,
     removeEmptyElements: argv.removeEmptyElements,
-    limitPages: argv.limitPages,
+    limitItems: argv.limitItems,
   });
 }
 
@@ -214,7 +214,7 @@ if (argv.media) {
     apiUrl,
     dataDir,
     jsonFilters,
-    limitPages: argv.limitPages,
+    limitItems: argv.limitItems,
   });
 }
 
@@ -223,7 +223,7 @@ if (argv.tags) {
     apiUrl,
     dataDir,
     jsonFilters,
-    limitPages: argv.limitPages,
+    limitItems: argv.limitItems,
   });
 }
 
@@ -232,7 +232,7 @@ if (argv.categories) {
     apiUrl,
     dataDir,
     jsonFilters,
-    limitPages: argv.limitPages,
+    limitItems: argv.limitItems,
   });
 }
 
@@ -241,6 +241,6 @@ if (argv.users) {
     apiUrl,
     dataDir,
     jsonFilters,
-    limitPages: argv.limitPages,
+    limitItems: argv.limitItems,
   });
 }

@@ -6,13 +6,18 @@ import { Buffer } from "node:buffer";
 import prettier from "prettier";
 import { error, info } from "./log.js";
 
-export async function paginatedScrape(url, limitPages, handleData) {
+export async function paginatedScrape(url, limitItems, handleData) {
   let page = 0;
   let pagesRemaining = true;
+  let itemsRemainingUntilLimitReached = limitItems;
   let nextPageUrl = url;
   const nextPattern = /(?<=<)([\S]*)(?=>; rel="next")/i;
 
-  while (pagesRemaining) {
+  while (
+    pagesRemaining &&
+    (itemsRemainingUntilLimitReached === undefined ||
+      itemsRemainingUntilLimitReached > 0)
+  ) {
     page = page + 1;
     const response = await fetch(nextPageUrl);
 
@@ -24,8 +29,7 @@ export async function paginatedScrape(url, limitPages, handleData) {
     const totalPagesHeader = response.headers.get("x-wp-totalpages");
     const linkHeader = response.headers.get("link");
 
-    pagesRemaining =
-      page !== limitPages && linkHeader && linkHeader.includes('rel="next"');
+    pagesRemaining = linkHeader && linkHeader.includes('rel="next"');
 
     info(
       `Scraping page ${chalk.blue(page)} of ${chalk.blue(
@@ -38,7 +42,17 @@ export async function paginatedScrape(url, limitPages, handleData) {
       nextPageUrl = linkHeader.match(nextPattern)[0];
     }
 
-    const data = await response.json();
+    let data = await response.json();
+
+    if (itemsRemainingUntilLimitReached !== undefined && Array.isArray(data)) {
+      if (data.length > itemsRemainingUntilLimitReached) {
+        data = data.slice(0, itemsRemainingUntilLimitReached);
+        itemsRemainingUntilLimitReached = 0;
+      } else {
+        itemsRemainingUntilLimitReached =
+          itemsRemainingUntilLimitReached - data.length;
+      }
+    }
 
     await handleData(data);
   }

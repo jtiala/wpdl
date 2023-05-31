@@ -21,7 +21,7 @@ export async function scrapeComments({
   removeAttributes,
   removeAllAttributes,
   removeEmptyElements,
-  limitPages,
+  limitItems,
 }) {
   info(`Scraping ${chalk.blue("comments")}...`, true);
 
@@ -38,7 +38,7 @@ export async function scrapeComments({
     removeAllAttributes ||
     removeEmptyElements;
 
-  await paginatedScrape(commentsApiUrl, limitPages, async (comments) => {
+  await paginatedScrape(commentsApiUrl, limitItems, async (comments) => {
     if (!Array.isArray(comments) || comments.length === 0) {
       info("No comments found.");
       cleanDir(commentsDir, true);
