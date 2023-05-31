@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/jtiala/wpdl/compare/v0.3.0...v1.0.0) (2023-05-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* `limitPages` option removed
+
+### Features
+
+* Limit number of items to scrape ([9e044a6](https://github.com/jtiala/wpdl/commit/9e044a607c8e869d6bd20d08dfab2d7f1ef17bab))
+
 ## [0.3.0](https://github.com/jtiala/wpdl/compare/v0.2.0...v0.3.0) (2023-05-30)
 
 
