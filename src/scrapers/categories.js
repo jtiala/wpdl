@@ -13,6 +13,7 @@ export async function scrapeCategories({
   apiUrl,
   dataDir,
   jsonFilters,
+  order,
   limitItems,
 }) {
   info(`Scraping ${chalk.blue("categories")}...`, true);
@@ -23,70 +24,74 @@ export async function scrapeCategories({
 
   await mkdir(categoriesDir, { recursive: true });
 
-  await paginatedScrape(categoriesApiUrl, limitItems, async (categories) => {
-    if (!Array.isArray(categories) || categories.length === 0) {
-      info("No categories found.");
-      cleanDir(categoriesDir, true);
+  await paginatedScrape({
+    url: categoriesApiUrl,
+    order,
+    limitItems,
+    dataHandler: async (categories) => {
+      if (!Array.isArray(categories) || categories.length === 0) {
+        info("No categories found.");
+        cleanDir(categoriesDir, true);
 
-      return;
-    }
-
-    for (const category of categories) {
-      const categoryIdentifier = `${category.id}-${category.slug}`;
-      const categoryDir = `${categoriesDir}/${categoryIdentifier}`;
-
-      info(`Scraping category ${chalk.blue(categoryIdentifier)}...`);
-
-      await cleanDir(categoryDir, true, true);
-
-      await writeFile(
-        `${categoryDir}/full-data.json`,
-        formatObjectAsJson(category)
-      );
-
-      await writeFile(
-        `${categoryDir}/meta-data.json`,
-        formatObjectAsJson(getMetadata(category, jsonFilters))
-      );
-
-      await writeFile(
-        `${categoryDir}/links.json`,
-        formatObjectAsJson(getLinks(category))
-      );
-
-      let postIds = [];
-
-      info(
-        `Scraping ${chalk.blue("posts")} for category ${chalk.blue(
-          categoryIdentifier
-        )}...`
-      );
-
-      await paginatedScrape(
-        `${postsApiUrl}?categories=${category.id}`,
-        undefined,
-        async (posts) => {
-          if (!Array.isArray(posts) || posts.length === 0) {
-            info("No posts found for the category.");
-
-            return;
-          }
-
-          for (const post of posts) {
-            postIds = [...postIds, post.id];
-          }
-        }
-      );
-
-      if (postIds.length > 0) {
-        await writeFile(
-          `${categoryDir}/posts.json`,
-          formatObjectAsJson(postIds)
-        );
+        return;
       }
 
-      success("Done.", true);
-    }
+      for (const category of categories) {
+        const categoryIdentifier = `${category.id}-${category.slug}`;
+        const categoryDir = `${categoriesDir}/${categoryIdentifier}`;
+
+        info(`Scraping category ${chalk.blue(categoryIdentifier)}...`);
+
+        await cleanDir(categoryDir, true, true);
+
+        await writeFile(
+          `${categoryDir}/full-data.json`,
+          formatObjectAsJson(category)
+        );
+
+        await writeFile(
+          `${categoryDir}/meta-data.json`,
+          formatObjectAsJson(getMetadata(category, jsonFilters))
+        );
+
+        await writeFile(
+          `${categoryDir}/links.json`,
+          formatObjectAsJson(getLinks(category))
+        );
+
+        let postIds = [];
+
+        info(
+          `Scraping ${chalk.blue("posts")} for category ${chalk.blue(
+            categoryIdentifier
+          )}...`
+        );
+
+        await paginatedScrape({
+          url: `${postsApiUrl}?categories=${category.id}`,
+          dataHandler: async (posts) => {
+            if (!Array.isArray(posts) || posts.length === 0) {
+              info("No posts found for the category.");
+
+              return;
+            }
+
+            for (const post of posts) {
+              postIds = [...postIds, post.id];
+            }
+          },
+        });
+
+        if (postIds.length > 0) {
+          await writeFile(
+            `${categoryDir}/posts.json`,
+            formatObjectAsJson(postIds)
+          );
+        }
+
+        success("Done.", true);
+      }
+    },
   });
 
   success("Done scraping categories.", true);

@@ -13,6 +13,7 @@ export async function scrapeUsers({
   apiUrl,
   dataDir,
   jsonFilters,
+  order,
   limitItems,
 }) {
   info(`Scraping ${chalk.blue("users")}...`, true);
@@ -23,64 +24,68 @@ export async function scrapeUsers({
 
   await mkdir(usersDir, { recursive: true });
 
-  await paginatedScrape(usersApiUrl, limitItems, async (users) => {
-    if (!Array.isArray(users) || users.length === 0) {
-      info("No users found.");
-      cleanDir(usersDir, true);
+  await paginatedScrape({
+    url: usersApiUrl,
+    order,
+    limitItems,
+    dataHandler: async (users) => {
+      if (!Array.isArray(users) || users.length === 0) {
+        info("No users found.");
+        cleanDir(usersDir, true);
 
-      return;
-    }
-
-    for (const user of users) {
-      const userIdentifier = `${user.id}-${user.slug}`;
-      const userDir = `${usersDir}/${userIdentifier}`;
-
-      info(`Scraping user ${chalk.blue(userIdentifier)}...`);
-
-      await cleanDir(userDir, true, true);
-
-      await writeFile(`${userDir}/full-data.json`, formatObjectAsJson(user));
-
-      await writeFile(
-        `${userDir}/meta-data.json`,
-        formatObjectAsJson(getMetadata(user, jsonFilters))
-      );
-
-      await writeFile(
-        `${userDir}/links.json`,
-        formatObjectAsJson(getLinks(user))
-      );
-
-      let postIds = [];
-
-      info(
-        `Scraping ${chalk.blue("posts")} for user ${chalk.blue(
-          userIdentifier
-        )}...`
-      );
-
-      await paginatedScrape(
-        `${postsApiUrl}?author=${user.id}`,
-        undefined,
-        async (posts) => {
-          if (!Array.isArray(posts) || posts.length === 0) {
-            info("No posts found for the user.");
-
-            return;
-          }
-
-          for (const post of posts) {
-            postIds = [...postIds, post.id];
-          }
-        }
-      );
-
-      if (postIds.length > 0) {
-        await writeFile(`${userDir}/posts.json`, formatObjectAsJson(postIds));
+        return;
       }
 
-      success("Done.", true);
-    }
+      for (const user of users) {
+        const userIdentifier = `${user.id}-${user.slug}`;
+        const userDir = `${usersDir}/${userIdentifier}`;
+
+        info(`Scraping user ${chalk.blue(userIdentifier)}...`);
+
+        await cleanDir(userDir, true, true);
+
+        await writeFile(`${userDir}/full-data.json`, formatObjectAsJson(user));
+
+        await writeFile(
+          `${userDir}/meta-data.json`,
+          formatObjectAsJson(getMetadata(user, jsonFilters))
+        );
+
+        await writeFile(
+          `${userDir}/links.json`,
+          formatObjectAsJson(getLinks(user))
+        );
+
+        let postIds = [];
+
+        info(
+          `Scraping ${chalk.blue("posts")} for user ${chalk.blue(
+            userIdentifier
+          )}...`
+        );
+
+        await paginatedScrape({
+          url: `${postsApiUrl}?author=${user.id}`,
+          dataHandler: async (posts) => {
+            if (!Array.isArray(posts) || posts.length === 0) {
+              info("No posts found for the user.");
+
+              return;
+            }
+
+            for (const post of posts) {
+              postIds = [...postIds, post.id];
+            }
+          },
+        });
+
+        if (postIds.length > 0) {
+          await writeFile(`${userDir}/posts.json`, formatObjectAsJson(postIds));
+        }
+
+        success("Done.", true);
+      }
+    },
   });
 
   success("Done scraping users.", true);

@@ -23,6 +23,7 @@ export async function scrapePosts({
   removeAttributes,
   removeAllAttributes,
   removeEmptyElements,
+  order,
   limitItems,
 }) {
   info(`Scraping ${chalk.blue("posts")}...`, true);
@@ -40,88 +41,93 @@ export async function scrapePosts({
     removeAllAttributes ||
     removeEmptyElements;
 
-  await paginatedScrape(postsApiUrl, limitItems, async (posts) => {
-    if (!Array.isArray(posts) || posts.length === 0) {
-      info("No posts found.");
-      cleanDir(postsDir, true);
+  await paginatedScrape({
+    url: postsApiUrl,
+    order,
+    limitItems,
+    dataHandler: async (posts) => {
+      if (!Array.isArray(posts) || posts.length === 0) {
+        info("No posts found.");
+        cleanDir(postsDir, true);
 
-      return;
-    }
+        return;
+      }
 
-    for (const post of posts) {
-      const postIdentifier = `${post.id}-${post.slug}`;
-      const postDir = `${postsDir}/${postIdentifier}`;
+      for (const post of posts) {
+        const postIdentifier = `${post.id}-${post.slug}`;
+        const postDir = `${postsDir}/${postIdentifier}`;
 
-      info(`Scraping post ${chalk.blue(postIdentifier)}...`);
+        info(`Scraping post ${chalk.blue(postIdentifier)}...`);
 
-      await cleanDir(postDir, true, true);
+        await cleanDir(postDir, true, true);
 
-      await writeFile(`${postDir}/full-data.json`, formatObjectAsJson(post));
+        await writeFile(`${postDir}/full-data.json`, formatObjectAsJson(post));
 
-      await writeFile(
-        `${postDir}/meta-data.json`,
-        formatObjectAsJson(getMetadata(post, jsonFilters))
-      );
-
-      await writeFile(
-        `${postDir}/links.json`,
-        formatObjectAsJson(getLinks(post))
-      );
-
-      await writeFile(
-        `${postDir}/rendered-content.html`,
-        formatStringAsHtml(
-          filterHtml(post.content.rendered, {
-            classFilters,
-            idFilters,
-            elementFilters,
-            removeAttributes,
-            removeAllAttributes,
-            removeEmptyElements,
-          })
-        )
-      );
-
-      await writeFile(
-        `${postDir}/rendered-excerpt.html`,
-        formatStringAsHtml(
-          filterHtml(post.excerpt.rendered, {
-            classFilters,
-            idFilters,
-            elementFilters,
-            removeAttributes,
-            removeAllAttributes,
-            removeEmptyElements,
-          })
-        )
-      );
-
-      if (saveUnmodifiedHtml) {
         await writeFile(
-          `${postDir}/rendered-content-unmodified.html`,
-          formatStringAsHtml(post.content.rendered)
+          `${postDir}/meta-data.json`,
+          formatObjectAsJson(getMetadata(post, jsonFilters))
         );
 
         await writeFile(
-          `${postDir}/rendered-excerpt-unmodified.html`,
-          formatStringAsHtml(post.excerpt.rendered)
+          `${postDir}/links.json`,
+          formatObjectAsJson(getLinks(post))
         );
+
+        await writeFile(
+          `${postDir}/rendered-content.html`,
+          formatStringAsHtml(
+            filterHtml(post.content.rendered, {
+              classFilters,
+              idFilters,
+              elementFilters,
+              removeAttributes,
+              removeAllAttributes,
+              removeEmptyElements,
+            })
+          )
+        );
+
+        await writeFile(
+          `${postDir}/rendered-excerpt.html`,
+          formatStringAsHtml(
+            filterHtml(post.excerpt.rendered, {
+              classFilters,
+              idFilters,
+              elementFilters,
+              removeAttributes,
+              removeAllAttributes,
+              removeEmptyElements,
+            })
+          )
+        );
+
+        if (saveUnmodifiedHtml) {
+          await writeFile(
+            `${postDir}/rendered-content-unmodified.html`,
+            formatStringAsHtml(post.content.rendered)
+          );
+
+          await writeFile(
+            `${postDir}/rendered-excerpt-unmodified.html`,
+            formatStringAsHtml(post.excerpt.rendered)
+          );
+        }
+
+        const mediaIds = [
+          ...(post.featured_media ? [post.featured_media] : []),
+          ...(await findImageMediaIds(post.content.rendered)),
+        ];
+
+        if (mediaIds.length > 0) {
+          info(`Found ${chalk.blue(mediaIds.length)} image(s).`);
+          const imagesDir = `${postDir}/images`;
+          await mkdir(imagesDir, { recursive: true });
+          await downloadImages(mediaIds, apiUrl, imagesDir);
+        }
+
+        success("Done.", true);
       }
-
-      const mediaIds = [
-        ...(post.featured_media ? [post.featured_media] : []),
-        ...(await findImageMediaIds(post.content.rendered)),
-      ];
-
-      if (mediaIds.length > 0) {
-        info(`Found ${chalk.blue(mediaIds.length)} image(s).`);
-        const imagesDir = `${postDir}/images`;
-        await mkdir(imagesDir, { recursive: true });
-        await downloadImages(mediaIds, apiUrl, imagesDir);
-      }
-
-      success("Done.", true);
-    }
+    },
   });
 
   success("Done scraping posts.", true);

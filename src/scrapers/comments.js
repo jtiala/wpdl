@@ -21,6 +21,7 @@ export async function scrapeComments({
   removeAttributes,
   removeAllAttributes,
   removeEmptyElements,
+  order,
   limitItems,
 }) {
   info(`Scraping ${chalk.blue("comments")}...`, true);
@@ -38,60 +39,65 @@ export async function scrapeComments({
     removeAllAttributes ||
     removeEmptyElements;
 
-  await paginatedScrape(commentsApiUrl, limitItems, async (comments) => {
-    if (!Array.isArray(comments) || comments.length === 0) {
-      info("No comments found.");
-      cleanDir(commentsDir, true);
+  await paginatedScrape({
+    url: commentsApiUrl,
+    order,
+    limitItems,
+    dataHandler: async (comments) => {
+      if (!Array.isArray(comments) || comments.length === 0) {
+        info("No comments found.");
+        cleanDir(commentsDir, true);
 
-      return;
-    }
-
-    for (const comment of comments) {
-      const commentIdentifier = `${comment.post}-${comment.id}`;
-      const commentDir = `${commentsDir}/${commentIdentifier}`;
-
-      info(`Scraping comment ${chalk.blue(commentIdentifier)}...`);
-
-      await cleanDir(commentDir, true, true);
-
-      await writeFile(
-        `${commentDir}/full-data.json`,
-        formatObjectAsJson(comment)
-      );
-
-      await writeFile(
-        `${commentDir}/meta-data.json`,
-        formatObjectAsJson(getMetadata(comment, jsonFilters))
-      );
-
-      await writeFile(
-        `${commentDir}/links.json`,
-        formatObjectAsJson(getLinks(comment))
-      );
-
-      await writeFile(
-        `${commentDir}/rendered-content.html`,
-        formatStringAsHtml(
-          filterHtml(comment.content.rendered, {
-            classFilters,
-            idFilters,
-            elementFilters,
-            removeAttributes,
-            removeAllAttributes,
-            removeEmptyElements,
-          })
-        )
-      );
-
-      if (saveUnmodifiedHtml) {
-        await writeFile(
-          `${commentDir}/rendered-content-unmodified.html`,
-          formatStringAsHtml(comment.content.rendered)
-        );
+        return;
       }
 
-      success("Done.", true);
-    }
+      for (const comment of comments) {
+        const commentIdentifier = `${comment.post}-${comment.id}`;
+        const commentDir = `${commentsDir}/${commentIdentifier}`;
+
+        info(`Scraping comment ${chalk.blue(commentIdentifier)}...`);
+
+        await cleanDir(commentDir, true, true);
+
+        await writeFile(
+          `${commentDir}/full-data.json`,
+          formatObjectAsJson(comment)
+        );
+
+        await writeFile(
+          `${commentDir}/meta-data.json`,
+          formatObjectAsJson(getMetadata(comment, jsonFilters))
+        );
+
+        await writeFile(
+          `${commentDir}/links.json`,
+          formatObjectAsJson(getLinks(comment))
+        );
+
+        await writeFile(
+          `${commentDir}/rendered-content.html`,
+          formatStringAsHtml(
+            filterHtml(comment.content.rendered, {
+              classFilters,
+              idFilters,
+              elementFilters,
+              removeAttributes,
+              removeAllAttributes,
+              removeEmptyElements,
+            })
+          )
+        );
+
+        if (saveUnmodifiedHtml) {
+          await writeFile(
+            `${commentDir}/rendered-content-unmodified.html`,
+            formatStringAsHtml(comment.content.rendered)
+          );
+        }
+
+        success("Done.", true);
+      }
+    },
   });
 
   success("Done scraping comments.", true);

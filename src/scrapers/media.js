@@ -14,6 +14,7 @@ export async function scrapeMedia({
   apiUrl,
   dataDir,
   jsonFilters,
+  order,
   limitItems,
 }) {
   info(`Scraping ${chalk.blue("media")}...`, true);
@@ -23,43 +24,48 @@ export async function scrapeMedia({
 
   await mkdir(mediaDir, { recursive: true });
 
-  await paginatedScrape(mediaApiUrl, limitItems, async (mediaList) => {
-    if (!Array.isArray(mediaList) || mediaList.length === 0) {
-      info("No media found.");
-      cleanDir(mediaDir, true);
+  await paginatedScrape({
+    url: mediaApiUrl,
+    order,
+    limitItems,
+    dataHandler: async (mediaList) => {
+      if (!Array.isArray(mediaList) || mediaList.length === 0) {
+        info("No media found.");
+        cleanDir(mediaDir, true);
 
-      return;
-    }
-
-    for (const mediaItem of mediaList) {
-      const mediaItemIdentifier = `${mediaItem.id}-${mediaItem.slug}`;
-      const mediaItemDir = `${mediaDir}/${mediaItemIdentifier}`;
-
-      info(`Scraping media item ${chalk.blue(mediaItemIdentifier)}...`);
-
-      await cleanDir(mediaItemDir, true, true);
-
-      await writeFile(
-        `${mediaItemDir}/full-data.json`,
-        formatObjectAsJson(mediaItem)
-      );
-
-      await writeFile(
-        `${mediaItemDir}/meta-data.json`,
-        formatObjectAsJson(getMetadata(mediaItem, jsonFilters))
-      );
-
-      await writeFile(
-        `${mediaItemDir}/links.json`,
-        formatObjectAsJson(getLinks(mediaItem))
-      );
-
-      if (mediaItem.media_type === "image") {
-        await downloadMediaItemImage(mediaItem, mediaItemDir);
+        return;
       }
 
-      success("Done.", true);
-    }
+      for (const mediaItem of mediaList) {
+        const mediaItemIdentifier = `${mediaItem.id}-${mediaItem.slug}`;
+        const mediaItemDir = `${mediaDir}/${mediaItemIdentifier}`;
+
+        info(`Scraping media item ${chalk.blue(mediaItemIdentifier)}...`);
+
+        await cleanDir(mediaItemDir, true, true);
+
+        await writeFile(
+          `${mediaItemDir}/full-data.json`,
+          formatObjectAsJson(mediaItem)
+        );
+
+        await writeFile(
+          `${mediaItemDir}/meta-data.json`,
+          formatObjectAsJson(getMetadata(mediaItem, jsonFilters))
+        );
+
+        await writeFile(
+          `${mediaItemDir}/links.json`,
+          formatObjectAsJson(getLinks(mediaItem))
+        );
+
+        if (mediaItem.media_type === "image") {
+          await downloadMediaItemImage(mediaItem, mediaItemDir);
+        }
+
+        success("Done.", true);
+      }
+    },
   });
 
   success("Done scraping media.", true);

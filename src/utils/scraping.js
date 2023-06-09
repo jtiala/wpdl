@@ -5,12 +5,13 @@ import mime from "mime-types";
 import { Buffer } from "node:buffer";
 import prettier from "prettier";
 import { error, info } from "./log.js";
+import { addSearchParam } from "./url.js";
 
-export async function paginatedScrape(url, limitItems, handleData) {
+export async function paginatedScrape({ url, order, limitItems, dataHandler }) {
   let page = 0;
   let pagesRemaining = true;
   let itemsRemainingUntilLimitReached = limitItems;
-  let nextPageUrl = url;
+  let nextPageUrl = order ? addSearchParam(url, "order", order) : url;
   const nextPattern = /(?<=<)([\S]*)(?=>; rel="next")/i;
 
   while (
@@ -27,9 +28,6 @@ export async function paginatedScrape(url, limitItems, handleData) {
     }
 
     const totalPagesHeader = response.headers.get("x-wp-totalpages");
-    const linkHeader = response.headers.get("link");
-
-    pagesRemaining = linkHeader && linkHeader.includes('rel="next"');
 
     info(
       `Scraping page ${chalk.blue(page)} of ${chalk.blue(
@@ -37,6 +35,9 @@ export async function paginatedScrape(url, limitItems, handleData) {
       )} from ${chalk.blue(nextPageUrl)} ...`,
       true
     );
+
+    const linkHeader = response.headers.get("link");
+    pagesRemaining = linkHeader && linkHeader.includes('rel="next"');
 
     if (pagesRemaining) {
       nextPageUrl = linkHeader.match(nextPattern)[0];
@@ -54,7 +55,7 @@ export async function paginatedScrape(url, limitItems, handleData) {
       }
     }
 
-    await handleData(data);
+    await dataHandler(data);
   }
 }
 
