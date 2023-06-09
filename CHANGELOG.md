@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/jtiala/wpdl/compare/v1.0.0...v1.1.0) (2023-06-09)
+
+
+### Features
+
+* Command line argument for ordering results ascending or descending ([97723e4](https://github.com/jtiala/wpdl/commit/97723e4dff6d00f5a18ca16e8ada24c3aa1a153c))
+
 ## [1.0.0](https://github.com/jtiala/wpdl/compare/v0.3.0...v1.0.0) (2023-05-31)
 
 
