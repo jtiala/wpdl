@@ -204,7 +204,11 @@ export async function downloadImages(mediaIds, apiUrl, dir) {
 export async function downloadMediaItemImage(mediaItem, dir) {
   if (
     mediaItem.media_type === "image" &&
+    mediaItem.media_details &&
+    mediaItem.media_details.sizes &&
+    mediaItem.media_details.sizes.full &&
     mediaItem.media_details.sizes.full.source_url &&
+    mediaItem.slug &&
     mediaItem.mime_type
   ) {
     const fullImageUrl = mediaItem.media_details.sizes.full.source_url;
