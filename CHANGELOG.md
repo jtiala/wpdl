@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/jtiala/wpdl/compare/v1.1.0...v1.1.1) (2023-08-20)
+
+
+### Bug Fixes
+
+* cannot read properties when downloading images ([cc73b12](https://github.com/jtiala/wpdl/commit/cc73b12da17a228e229d96e7abb89af5135f78a1))
+
 ## [1.1.0](https://github.com/jtiala/wpdl/compare/v1.0.0...v1.1.0) (2023-06-09)
 
 
