@@ -16,7 +16,7 @@ Node.js v19 or newer (for native fetch support).
 
 ## Usage examples
 
-Recommended way of using wpdl is with `npx`. You can also clone this repo and run locally, just replace `npx wpdl` with `npm run scrape -- `. Note: the double dash is needed to pass the arguments to the script.
+The following commands use the latest version of `wpdl` that is published in [npm](https://www.npmjs.com/package/wpdl). To run the script locally, clone this repo and replace `npx wpdl` with `npx .`.
 
 Scrape pages and posts
 
