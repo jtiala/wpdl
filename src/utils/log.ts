@@ -1,17 +1,17 @@
 import chalk from "chalk";
 
-function formatLogMessage(message, newLine = false) {
+function formatLogMessage(message: string, newLine = false) {
   return `${message}${newLine ? "\n" : ""}`;
 }
 
-export function info(message, newLine = false) {
+export function info(message: string, newLine = false) {
   return console.log(formatLogMessage(chalk.cyan(message), newLine));
 }
 
-export function success(message, newLine = false) {
+export function success(message: string, newLine = false) {
   return console.log(formatLogMessage(chalk.green(message), newLine));
 }
 
-export function error(message, newLine = false) {
+export function error(message: string, newLine = false) {
   return console.log(formatLogMessage(chalk.red(message), newLine));
 }

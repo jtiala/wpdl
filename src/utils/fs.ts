@@ -1,12 +1,12 @@
 import chalk from "chalk";
 import { mkdir, rm } from "fs/promises";
-import { info, success } from "./log.js";
+import { info, success } from "./log";
 
-export async function createDir(dir) {
+export async function createDir(dir: string) {
   await mkdir(dir, { recursive: true });
 }
 
-export async function cleanDir(dir, recreate = true, silent = false) {
+export async function cleanDir(dir: string, recreate = true, silent = false) {
   if (!silent) {
     info(`Cleaning directory ${chalk.blue(dir)} ...`);
   }
