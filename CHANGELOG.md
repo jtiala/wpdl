@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/jtiala/wpdl/compare/v2.0.0...v2.0.1) (2023-08-31)
+
+
+### Bug Fixes
+
+* add shebang and chmod the output file ([2d6b2fb](https://github.com/jtiala/wpdl/commit/2d6b2fb712e668f94607409ad0b1543e1088f2e8))
+
 ## [2.0.0](https://github.com/jtiala/wpdl/compare/v1.1.1...v2.0.0) (2023-08-31)
 
 
