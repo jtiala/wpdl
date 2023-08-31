@@ -3,17 +3,17 @@ import chalk from "chalk";
 import process from "node:process";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
-import { scrapeCategories } from "./scrapers/categories.js";
-import { scrapeComments } from "./scrapers/comments.js";
-import { scrapeMedia } from "./scrapers/media.js";
-import { scrapePages } from "./scrapers/pages.js";
-import { scrapePosts } from "./scrapers/posts.js";
-import { scrapeTags } from "./scrapers/tags.js";
-import { scrapeUsers } from "./scrapers/users.js";
-import { cleanDir, createDir } from "./utils/fs.js";
-import { error, info } from "./utils/log.js";
-import { getSiteNameFromUrl, isValidUrl } from "./utils/url.js";
-import { isWpApiAccessible } from "./utils/wpapi.js";
+import { scrapeCategories } from "./scrapers/categories";
+import { scrapeComments } from "./scrapers/comments";
+import { scrapeMedia } from "./scrapers/media";
+import { scrapePages } from "./scrapers/pages";
+import { scrapePosts } from "./scrapers/posts";
+import { scrapeTags } from "./scrapers/tags";
+import { scrapeUsers } from "./scrapers/users";
+import { cleanDir, createDir } from "./utils/fs";
+import { error, info } from "./utils/log";
+import { getSiteNameFromUrl, isValidUrl } from "./utils/url";
+import { isWpApiAccessible } from "./utils/wpapi";
 
 const argv = yargs(hideBin(process.argv))
   .usage("Usage: npx wpdl --url https://your-wp-instance.com [options]")
@@ -104,7 +104,7 @@ const argv = yargs(hideBin(process.argv))
   .demandOption(["url"])
   .alias("h", "help")
   .alias("v", "version")
-  .parse();
+  .parseSync();
 
 if (!isValidUrl(argv.url)) {
   error(`${chalk.blue(argv.url)} is not a valid URL`);
@@ -114,8 +114,8 @@ if (!isValidUrl(argv.url)) {
 if (!(await isWpApiAccessible(argv.url))) {
   error(
     `${chalk.blue(
-      argv.url
-    )} is not accessible, is not a WordPress instance or the WordPress Rest API v2 is not enabled.`
+      argv.url,
+    )} is not accessible, is not a WordPress instance or the WordPress Rest API v2 is not enabled.`,
   );
   process.exit(1);
 }
@@ -127,7 +127,7 @@ const siteName = getSiteNameFromUrl(argv.url);
 const targetDir = String(
   argv.targetDir.substring(argv.targetDir.length - 1) === "/"
     ? argv.targetDir.slice(0, -1)
-    : argv.targetDir
+    : argv.targetDir,
 );
 
 const dataDir = `${targetDir}/${siteName}`;

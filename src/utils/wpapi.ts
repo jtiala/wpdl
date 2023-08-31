@@ -1,4 +1,4 @@
-export async function isWpApiAccessible(url) {
+export async function isWpApiAccessible(url: string) {
   const apiUrl = `${url}/wp-json`;
   const response = await fetch(apiUrl);
 

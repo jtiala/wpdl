@@ -4,18 +4,38 @@ import jsdom from "jsdom";
 import mime from "mime-types";
 import { Buffer } from "node:buffer";
 import prettier from "prettier";
-import { error, info } from "./log.js";
-import { addSearchParam } from "./url.js";
+import { error, info } from "./log";
+import { addSearchParam } from "./url";
 
-export async function paginatedScrape({ url, order, limitItems, dataHandler }) {
+type JSONValue =
+  | string
+  | number
+  | boolean
+  | { [key: string]: JSONValue }
+  | Array<JSONValue>;
+
+export async function paginatedScrape({
+  url,
+  order,
+  limitItems,
+  dataHandler,
+}: {
+  url: string;
+  order?: string;
+  limitItems?: number;
+  dataHandler: (data: JSONValue) => unknown;
+}) {
   let page = 0;
   let pagesRemaining = true;
   let itemsRemainingUntilLimitReached = limitItems;
-  let nextPageUrl = order ? addSearchParam(url, "order", order) : url;
+  let nextPageUrl: string | undefined = order
+    ? addSearchParam(url, "order", order)
+    : url;
   const nextPattern = /(?<=<)([\S]*)(?=>; rel="next")/i;
 
   while (
     pagesRemaining &&
+    nextPageUrl &&
     (itemsRemainingUntilLimitReached === undefined ||
       itemsRemainingUntilLimitReached > 0)
   ) {
@@ -31,19 +51,20 @@ export async function paginatedScrape({ url, order, limitItems, dataHandler }) {
 
     info(
       `Scraping page ${chalk.blue(page)} of ${chalk.blue(
-        totalPagesHeader
+        totalPagesHeader,
       )} from ${chalk.blue(nextPageUrl)} ...`,
-      true
+      true,
     );
 
     const linkHeader = response.headers.get("link");
-    pagesRemaining = linkHeader && linkHeader.includes('rel="next"');
+    pagesRemaining = !!linkHeader && linkHeader.includes('rel="next"');
 
-    if (pagesRemaining) {
-      nextPageUrl = linkHeader.match(nextPattern)[0];
+    if (pagesRemaining && linkHeader) {
+      const match = linkHeader.match(nextPattern);
+      nextPageUrl = match ? match[0] : undefined;
     }
 
-    let data = await response.json();
+    let data: JSONValue = await response.json();
 
     if (itemsRemainingUntilLimitReached !== undefined && Array.isArray(data)) {
       if (data.length > itemsRemainingUntilLimitReached) {
@@ -59,7 +80,7 @@ export async function paginatedScrape({ url, order, limitItems, dataHandler }) {
   }
 }
 
-export function formatObjectAsJson(object) {
+export async function formatAsJson(object: unknown) {
   const stringifiedObject = JSON.stringify(object);
 
   try {
@@ -69,7 +90,7 @@ export function formatObjectAsJson(object) {
   }
 }
 
-export function formatStringAsHtml(string) {
+export async function formatStringAsHtml(string: string) {
   try {
     return prettier.format(string, { parser: "html" });
   } catch {
@@ -78,7 +99,7 @@ export function formatStringAsHtml(string) {
 }
 
 export function filterHtml(
-  htmlString,
+  htmlString: string,
   {
     classFilters,
     idFilters,
@@ -86,26 +107,39 @@ export function filterHtml(
     removeAttributes,
     removeAllAttributes,
     removeEmptyElements,
-  }
+  }: {
+    classFilters?: string[];
+    idFilters?: string[];
+    elementFilters?: string[];
+    removeAttributes?: string[];
+    removeAllAttributes?: boolean;
+    removeEmptyElements?: boolean;
+  },
 ) {
   const dom = new jsdom.JSDOM(htmlString);
 
-  for (const filter of classFilters) {
-    dom.window.document
-      .querySelectorAll(`.${filter}`)
-      .forEach((e) => e.remove());
+  if (classFilters) {
+    for (const filter of classFilters) {
+      dom.window.document
+        .querySelectorAll(`.${filter}`)
+        .forEach((e) => e.remove());
+    }
   }
 
-  for (const filter of idFilters) {
-    dom.window.document
-      .querySelectorAll(`#${filter}`)
-      .forEach((e) => e.remove());
+  if (idFilters) {
+    for (const filter of idFilters) {
+      dom.window.document
+        .querySelectorAll(`#${filter}`)
+        .forEach((e) => e.remove());
+    }
   }
 
-  for (const filter of elementFilters) {
-    dom.window.document
-      .querySelectorAll(`${filter}`)
-      .forEach((e) => e.remove());
+  if (elementFilters) {
+    for (const filter of elementFilters) {
+      dom.window.document
+        .querySelectorAll(`${filter}`)
+        .forEach((e) => e.remove());
+    }
   }
 
   if (removeEmptyElements) {
@@ -122,7 +156,7 @@ export function filterHtml(
         element.removeAttribute(element.attributes[0].name);
       }
     }
-  } else if (removeAttributes.length > 0) {
+  } else if (removeAttributes && removeAttributes.length > 0) {
     for (const element of dom.window.document.querySelectorAll("body *")) {
       for (const attribute of removeAttributes) {
         element.removeAttribute(attribute);
@@ -133,15 +167,25 @@ export function filterHtml(
   return dom.window.document.body.innerHTML;
 }
 
-export function getInJSON(json, key) {
-  if (key in json && json[key] !== undefined && json[key] !== null) {
+export function getInJSON(json: JSONValue, key: string) {
+  if (
+    typeof json === "object" &&
+    !Array.isArray(json) &&
+    key in json &&
+    json[key] !== undefined &&
+    json[key] !== null
+  ) {
     return json[key];
   }
 
   return undefined;
 }
 
-export function filterJSON(json, jsonFilters) {
+export function filterJSON(json: JSONValue, jsonFilters: string[]) {
+  if (typeof json !== "object" || Array.isArray(json)) {
+    return {};
+  }
+
   const removeKeys = jsonFilters.filter((filter) => !filter.endsWith("*"));
   const removeStartingWith = jsonFilters
     .filter((filter) => filter.endsWith("*"))
@@ -153,37 +197,41 @@ export function filterJSON(json, jsonFilters) {
         !(
           removeKeys.includes(key) ||
           removeStartingWith.some((removeKey) => key.startsWith(removeKey))
-        )
+        ),
     )
     .reduce((filteredJson, key) => ({ ...filteredJson, [key]: json[key] }), {});
 }
 
-export function getLinks(json) {
+export function getLinks(json: JSONValue) {
   return getInJSON(json, "_links");
 }
 
-export function getMetadata(json, jsonFilters) {
+export function getMetadata(json: JSONValue, jsonFilters?: string[]) {
   const defaultRemoveKeys = ["content", "excerpt", "_links"];
 
-  return filterJSON(json, [...defaultRemoveKeys, ...jsonFilters]);
+  return filterJSON(json, [...defaultRemoveKeys, ...(jsonFilters || [])]);
 }
 
-export async function findImageMediaIds(htmlString) {
+export async function findImageMediaIds(htmlString: string) {
   const dom = new jsdom.JSDOM(htmlString);
   const mediaIds = [];
 
   for (const element of dom.window.document.querySelectorAll("img")) {
-    if (element.hasAttribute("data-attachment-id")) {
-      mediaIds.push(parseInt(element.getAttribute("data-attachment-id")));
+    const attachmentId = element.getAttribute("data-attachment-id");
+
+    if (attachmentId) {
+      mediaIds.push(parseInt(attachmentId));
     }
   }
 
-  let uniqueMediaIds = [...new Set(mediaIds)];
-
-  return uniqueMediaIds;
+  return [...new Set(mediaIds)];
 }
 
-export async function downloadImages(mediaIds, apiUrl, dir) {
+export async function downloadImages(
+  mediaIds: number[],
+  apiUrl: string,
+  dir: string,
+) {
   for (const mediaId of mediaIds) {
     const mediaItemApiUrl = `${apiUrl}/media/${mediaId}`;
     const response = await fetch(mediaItemApiUrl);
@@ -201,7 +249,21 @@ export async function downloadImages(mediaIds, apiUrl, dir) {
   }
 }
 
-export async function downloadMediaItemImage(mediaItem, dir) {
+export async function downloadMediaItemImage(
+  mediaItem: {
+    slug?: string;
+    media_type?: string;
+    mime_type?: string;
+    media_details?: {
+      sizes?: {
+        full?: {
+          source_url?: string;
+        };
+      };
+    };
+  },
+  dir: string,
+) {
   if (
     mediaItem.media_type === "image" &&
     mediaItem.media_details &&
