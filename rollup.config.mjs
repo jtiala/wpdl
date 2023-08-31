@@ -1,4 +1,6 @@
 import typescript from "@rollup/plugin-typescript";
+import shebang from "rollup-plugin-add-shebang";
+import executable from "rollup-plugin-executable-output";
 
 export default {
   input: "src/index.ts",
@@ -6,7 +8,13 @@ export default {
     file: "dist/wpdl.js",
     format: "es",
   },
-  plugins: [typescript()],
+  plugins: [
+    typescript(),
+    shebang({
+      include: "dist/wpdl.js",
+    }),
+    executable(),
+  ],
   external: [
     "chalk",
     "fs/promises",

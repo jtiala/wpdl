@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import chalk from "chalk";
 import process from "node:process";
 import { hideBin } from "yargs/helpers";
