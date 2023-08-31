@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/jtiala/wpdl/compare/v1.1.1...v2.0.0) (2023-08-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* Code published in npm is now bundled to a single file.
+
+### Miscellaneous Chores
+
+* convert to TypeScript ([1e2fe7c](https://github.com/jtiala/wpdl/commit/1e2fe7c7c20dc188e1be158199991a41dde6aba4))
+
 ## [1.1.1](https://github.com/jtiala/wpdl/compare/v1.1.0...v1.1.1) (2023-08-20)
 
 
