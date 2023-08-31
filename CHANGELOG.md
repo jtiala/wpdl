@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/jtiala/wpdl/compare/v2.0.1...v2.0.2) (2023-08-31)
+
+
+### Bug Fixes
+
+* regression introduced in typescript conversion ([2f78f24](https://github.com/jtiala/wpdl/commit/2f78f249e19d7852a54574e2d11719ad0b8b229e))
+
 ## [2.0.1](https://github.com/jtiala/wpdl/compare/v2.0.0...v2.0.1) (2023-08-31)
 
 

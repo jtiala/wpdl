@@ -1,6 +1,6 @@
 {
   "name": "wpdl",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Scrape data from a WordPress instance.",
   "keywords": [
     "wordpress",
