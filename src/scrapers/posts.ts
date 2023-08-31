@@ -66,7 +66,7 @@ export async function scrapePosts({
       }
 
       for (const post of posts) {
-        if (typeof post === "object" && "post" in post && "id" in post) {
+        if (typeof post === "object" && "id" in post && "slug" in post) {
           const postIdentifier = `${post.id}-${post.slug}`;
           const postDir = `${postsDir}/${postIdentifier}`;
 

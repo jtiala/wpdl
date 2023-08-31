@@ -66,7 +66,7 @@ export async function scrapePages({
       }
 
       for (const page of pages) {
-        if (typeof page === "object" && "post" in page && "id" in page) {
+        if (typeof page === "object" && "id" in page && "slug" in page) {
           const pageIdentifier = `${page.id}-${page.slug}`;
           const pageDir = `${pagesDir}/${pageIdentifier}`;
 
